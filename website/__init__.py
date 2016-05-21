@@ -75,11 +75,11 @@ def init_app(app):
     # 注册接口
     from api import api
     from web import web
-    from store import store
+    from wx import wx
     from account import account
 
     app.register_blueprint(web)
     app.register_blueprint(api)
-    app.register_blueprint(store)
+    app.register_blueprint(wx)
     app.register_blueprint(account)
 

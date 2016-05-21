@@ -36,13 +36,11 @@ def login_required(function=None, redirect_url_for=None):
     def actual_decorator(f):
         @wraps(f)
         def decorated_function(*args, **kwargs):
+            print "session:", session.get('user')
             if 'user' in session and session['user'].get('id'):
-                if session['user']['role'] == 1:
-                    if session['user'].get('email_checked') == 0:
-                        return redirect(url_for('account.register_valid'))
-                    else:
-                        return f(*args, **kwargs)
-                elif session['user']['role'] == 2 or session['user']['role'] == 3:
+                if session['user'].get('email_checked') == 0:
+                    return redirect(url_for('account.register_valid'))
+                else:
                     return f(*args, **kwargs)
 
             return redirect(url_for('account.login',

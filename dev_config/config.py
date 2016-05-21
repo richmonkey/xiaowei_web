@@ -8,7 +8,7 @@ APP_MODE = 'Development'
 APP_ROOT = os.path.dirname(os.path.abspath(__file__))
 
 SESSION_COOKIE_NAME = 'sid_dev'
-SESSION_COOKIE_DOMAIN = '192.168.33.10'
+SESSION_COOKIE_DOMAIN = 'xiaowei.gobelieve.io'
 SESSION_COOKIE_PATH = '/'
 SESSION_COOKIE_HTTPONLY = True
 SESSION_COOKIE_SECURE = False

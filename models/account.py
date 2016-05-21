@@ -8,37 +8,24 @@ from website.core import ObjectType
 class Account():
     @classmethod
     def get_account(cls, db, account_id):
-        sql = "SELECT id, name, email, password, email_checked, role FROM account WHERE id=%s"
+        sql = "SELECT id, name, number as email, password, email_checked, store_id FROM seller WHERE id=%s"
         r = db.execute(sql, account_id)
         return r.fetchone()
 
     @classmethod
     def get_account_with_email(cls, db, email):
-        sql = "SELECT id, name, email, password, email_checked, role FROM account WHERE email=%s"
+        sql = "SELECT id, name, number as email, password, email_checked, store_id FROM seller WHERE number=%s"
         r = db.execute(sql, email)
         return r.fetchone()
 
     @classmethod
-    def gen_id(cls, db):
-        obj_type = ObjectType.ACCOUNT
-        result = db.execute("INSERT INTO _object (`type`) VALUES (%s)", obj_type)
-        #必须是自增列才能返回
-        return result.lastrowid
-        
-    @classmethod
-    def create_account(cls, db, account_id, email, password, checked, role):
-        sql = "INSERT INTO account(id, email, password, email_checked, role) VALUES(%s, %s, %s, %s, %s)"
-        r = db.execute(sql, (account_id, email, password, checked, role))
-        return r.lastrowid
-
-    @classmethod
     def reset_password(cls, db, account_id, password):
-        sql = "UPDATE account SET password=%s WHERE id=%s"
+        sql = "UPDATE seller SET password=%s WHERE id=%s"
         db.execute(sql, (password, account_id))
 
     @classmethod
     def set_email_checked(cls, db, account_id, checked):
-        sql = "UPDATE account SET email_checked=%s WHERE id=%s"
+        sql = "UPDATE seller SET email_checked=%s WHERE id=%s"
         db.execute(sql, (checked, account_id))
 
     @classmethod

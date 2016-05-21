@@ -3,11 +3,18 @@ import logging
 
 class Seller(object):
     @classmethod
-    def add_seller(cls, db, name, password, store_id, group_id, number=None):
-        sql = "INSERT INTO seller(name, password, number, store_id) VALUES(%s, %s, %s, %s)"
-        r = db.execute(sql, (name, password, number, store_id))
+    def add_seller(cls, db, name, password, store_id, number, checked):
+        sql = "INSERT INTO seller(name, password, number, store_id, email_checked) VALUES(%s, %s, %s, %s, %s)"
+        r = db.execute(sql, (name, password, number, store_id, checked))
         seller_id = r.lastrowid
         return seller_id
+
+    @classmethod
+    def get_seller(cls, db, seller_id):
+        sql = "SELECT name, password, number, store_id, email_checked FROM seller WHERE seller.id=%s"
+        r = db.execute(sql, seller_id)
+        obj = r.fetchone()
+        return obj
 
     @classmethod
     def delete_seller(cls, db, store_id, seller_id):

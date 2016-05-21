@@ -185,8 +185,7 @@ class RoleType(TypeDefinition):
     """角色对象类型
     """
     DEVELOPER = 1
-    CHANNEL = 2
-    PLATFORM = 3
+    SELLER = 2
 
 
 class EmailUsageType(TypeDefinition):
@@ -195,6 +194,9 @@ class EmailUsageType(TypeDefinition):
     DEVELOPER_VERIFY = 1
     DEVELOPER_RESET_PWD = 2
 
+    #客服注册
+    SELLER_VERIFY = 3
+    SELLER_RESET_PWD = 4
 
 class GrantType(TypeDefinition):
     SMS_CODE = 1

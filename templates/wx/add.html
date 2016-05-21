@@ -1,0 +1,128 @@
+{% extends "layout/im.html" %}
+
+{% block breadcrumb %}
+  <div class="breadcrumb">
+    <div class="inner-wrapper">
+      <ol>
+        <li>
+          <a href="/wx">公众号列表</a>
+        </li>
+        <li class="arrow">
+          <span>&gt;</span>
+        </li>
+        <li class="active">
+          <span>添加微信公众号</span>
+        </li>
+      </ol>
+    </div>
+  </div>
+{% endblock %}
+
+{% block body %}
+  <div class="container">
+    {{ self.breadcrumb() }}
+    <div class="inner-wrapper">
+      <div class="one-wrapper">
+        <div class="panel">
+          <div class="app-form">
+            <div class="center-section">
+              <div class="form-1 push-add-form">
+
+                <form accept-charset="utf-8" method="post" action="/wx" enctype="multipart/form-data">
+
+                <table>
+                    <tbody>
+
+                      <tr class="">
+                        <th>
+                            <div class="th">
+                                <label class="label-1">
+                                    <span class="star">*</span>
+                                    名称:
+                                </label>
+                            </div>
+                        </th>
+                        <td>
+                            <div class="td ">
+                              <input type="text" class="ipt" size="30" maxlength="80" value="" name="name" id="name"  data-validate="" data-required="">
+                            </div>
+                        </td>
+                    </tr>
+
+                      <tr class="">
+                        <th>
+                            <div class="th">
+                                <label class="label-1">
+                                    <span class="star">*</span>
+                                    gh id:
+                                </label>
+                            </div>
+                        </th>
+                        <td>
+                            <div class="td ">
+
+                            <input type="text" class="ipt" size="30" maxlength="80" value="" name="gh_id" id="gh_id"  data-validate="" data-required="">
+
+                            </div>
+                        </td>
+                    </tr>
+
+
+                    <tr class="">
+                        <th>
+                            <div class="th">
+                                <label class="label-1">
+                                    <span class="star">*</span>
+                                    app id:
+                                </label>
+                            </div>
+                        </th>
+                        <td>
+                            <div class="td ">
+                            <input type="text" class="ipt" size="30" maxlength="80" value="" name="wx_app_id" id="wx_app_id"  data-validate="" data-required="">
+                            </div>
+                        </td>
+                    </tr>
+
+
+<tr class="">
+                        <th>
+                      
+                            <div class="th">
+                                <label class="label-1">
+                                    <span class="star">*</span>
+                                    app secret:
+                                </label>
+                            </div>
+                        </th>
+                        <td>
+                            <div class="td ">
+                              <input type="text" class="ipt" size="30" maxlength="80" value="" name="wx_app_secret" id="wx_app_secret"  data-validate="" data-required="">
+                            </div>
+                        </td>
+                    </tr>
+
+                    <tr class="">
+                        <th>
+                            <div class="th">
+                                <label class="label-1">
+                                </label>
+                            </div>
+                        </th>
+                        <td>
+                            <div class="td ">
+                              <button type="submit" class="btn btn-info">提交</button>
+                            </div>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+                                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}

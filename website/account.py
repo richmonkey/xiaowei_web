@@ -11,6 +11,7 @@ def get_user(db):
     user_id = session.get('user', {}).get('id')
     if user_id:
         account_obj = Account.get_account(db, user_id)
+        print "get account:", user_id, type(user_id), account_obj
         return account_obj
     else:
         return {}
@@ -20,9 +21,9 @@ def update_session(db):
     result = get_user(db)
     if result:
         session['user']['id'] = result.get('id')
+        session['user']['store_id'] = result.get('store_id')
         session['user']['email'] = result.get('email')
         session['user']['email_checked'] = result.get('email_checked')
-        session['user']['role'] = result.get('role')
 
 
 account = Blueprint('account', __name__, template_folder='templates', static_folder='static')
@@ -48,40 +49,7 @@ def logout():
     redirect_url = request.args.get('redirect_url')
     return redirect(url_for('.login', redirect_url=redirect_url))
 
-
-@account.route('/register/valid')
-def register_valid():
-    code = request.args.get('code', '')
-    error = ''
-    expires_in=86400
-    if code:
-        if 'user' in session:
-            account_obj = get_user(g._db)
-            verify_email = Account.get_verify_email(g._db, code, EmailUsageType.DEVELOPER_VERIFY)
-            logging.debug("verify email:%s", verify_email)
-            confirm = False
-            if verify_email and \
-               verify_email['ctime'] + expires_in > time.time():
-                confirm = True
-
-            Account.delete_verify_email(g._db, code, EmailUsageType.DEVELOPER_VERIFY)
-            if confirm:
-                Account.set_email_checked(g._db, verify_email['ro_id'], 1)
-                session['user']['email_checked'] = 1
-                return redirect(url_for('store.store_index'))
-            else:
-                error = '确认邮件失败'
-
-    if 'user' in session and session['user'].get('id'):
-        update_session(g._db)
-
-    if 'user' in session and session['user'].get('email'):
-        mail = session['user'].get('email')
-        if session['user'].get('email_checked') == 1:
-            return redirect(url_for('store.store_index'))
-    else:
-        return redirect(url_for('.login'))
-
+def get_email_url(mail):
     if mail:
         suffix = mail.split('@')[1]
         suffix = suffix.lower()
@@ -133,7 +101,53 @@ def register_valid():
     else:
         url = ''
 
-    return render_template('user/register_valid.html', data={'mail': mail, 'redirect': url, 'error': error})
+    return url
+    
+@account.route('/register/valid')
+def register_valid():
+    code = request.args.get('code', '')
+    expires_in=86400
+
+    logging.debug("session:%s", session)
+
+    if 'user' in session and session['user'].get('email'):
+        mail = session['user'].get('email')
+        #已经登录
+        if session['user'].get('email_checked') == 1:
+            return redirect(url_for('wx.wx_index'))
+
+    if code and 'user' in session:
+        account_obj = get_user(g._db)
+        verify_email = Account.get_verify_email(g._db, code, EmailUsageType.SELLER_VERIFY)
+        confirm = False
+        if account_obj and \
+           verify_email and \
+           account_obj['id'] == verify_email['ro_id'] and \
+           verify_email['ctime'] + expires_in > time.time():
+            confirm = True
+
+        Account.delete_verify_email(g._db, code, EmailUsageType.SELLER_VERIFY)
+        if confirm:
+            Account.set_email_checked(g._db, verify_email['ro_id'], 1)
+            session['user']['email_checked'] = 1
+            return redirect(url_for('wx.wx_index'))
+        else:
+            error = '确认邮件失败'
+            logging.debug("error:%s %s %s %s", error, account_obj, verify_email, session['user'])
+            return redirect(url_for('.login'))
+
+    if 'user' in session and session['user'].get('email'):
+        mail = session['user'].get('email')
+        if session['user'].get('email_checked') == 1:
+            return redirect(url_for('wx.wx_index'))
+        else:
+            url = get_email_url(mail)
+            data={'mail': mail, 'redirect': url, 'error': ''}
+            return render_template('user/register_valid.html', data=data)
+    else:
+        return redirect(url_for('.login'))
+
+
 
 
 @account.route('/user/info')

@@ -17,12 +17,15 @@ from blueprint_utils import require_basic_auth
 from utils.func import init_logger
 from utils.func import random_ascii_string
 
-from config import APP_MODE
-from config import KEFU_APPID
+import config
 
 LOGGER = init_logger(__name__)
 
 api = Blueprint('api', __name__, url_prefix='/api')
+
+def publish_message(rds, channel, msg):
+    rds.publish(channel, msg)
+
 
 ##################user######################
 @api.route('/login', methods=['POST'])
@@ -50,8 +53,8 @@ def login_post():
         session['user']['id'] = account.get('id')
         session['user']['email'] = account.get('email')
         session['user']['email_checked'] = account.get('email_checked')
-        session['user']['role'] = account.get('role')
-        session['user']['property'] = account.get('property')
+        session['user']['store_id'] = account.get('store_id')
+
 
     return send_response(account)
 
@@ -60,21 +63,33 @@ def login_post():
 def verify_mail():
     """
     """
-    account_obj = _get_account_by_email(g._db, request.form.get('email', ''))
+    email = request.form.get('email', '')
+    password = request.form.get('password', '')
+    password = generate_password_hash(password) 
+
+    account_obj = _get_account_by_email(g._db, email)
     if account_obj:
         raise MainException.ACCOUNT_DUPLICATE
 
-    email = request.form.get('email', '')
-    password = request.form.get('password', '')
-    password = generate_password_hash(password)
- 
     code = random_ascii_string(40)
-    account_id = Account.gen_id(g._db)
 
-    send_verify_email(email, code, email_cb=url_for('account.register_valid', code='', _external=True))
+    appid = config.KEFU_APPID
+    db = g._db
 
-    Account.insert_verify_email(g._db, email, code, EmailUsageType.DEVELOPER_VERIFY, account_id)
-    Account.create_account(g._db, account_id, email, password, 0, RoleType.DEVELOPER)
+    db.begin()
+    group_id = Group.create_group(db, appid, 0, '', False)
+    store_id = Store.create_store(db, '', group_id, 0)
+    account_id = Seller.add_seller(db, email, password, store_id, email, 0)
+    Group.add_group_member(db, group_id, account_id)
+    Account.insert_verify_email(db, email, code, EmailUsageType.SELLER_VERIFY, account_id)
+    db.commit()
+
+    content = "%d,%d,%d"%(group_id, appid, 0)
+    publish_message(g.im_rds, "group_create", content)
+
+    content = "%d,%d"%(group_id, account_id)
+    publish_message(g.im_rds, "group_member_add", content)
+
 
     if 'user' not in session:
         session['user'] = {}
@@ -82,14 +97,17 @@ def verify_mail():
     session['user']['id'] = account_id
     session['user']['email'] = email
     session['user']['email_checked'] = 0
-    session['user']['role'] = RoleType.DEVELOPER
+    session['user']['store_id'] = store_id
+    session['user']['name'] = email
 
     account = {
         "id":account_id,
         "email":email,
         "email_checked":0,
-        "role":RoleType.DEVELOPER
     }
+
+    send_verify_email(email, code, email_cb=url_for('account.register_valid', code='', _external=True))
+
     return send_response(account)
 
 
@@ -108,7 +126,7 @@ def verify_email():
     email = account_obj.get('email')
 
     send_verify_email(email, code, url_for('account.register_valid', code='', _external=True))
-    Account.insert_verify_email(g._db, email, code, EmailUsageType.DEVELOPER_VERIFY, account_obj.get('id'))
+    Account.insert_verify_email(g._db, email, code, EmailUsageType.SELLER_VERIFY, account_obj.get('id'))
 
     return MainException.OK
 
@@ -134,8 +152,10 @@ def reset_mail():
     code = random_ascii_string(40)
 
     send_reset_email(email, code, url_for('web.password_forget_check', mail=email, code='', _external=True))
-
-    Account.insert_verify_email(g._db, email, code, EmailUsageType.DEVELOPER_RESET_PWD, account_obj['id'])
+    
+    Account.insert_verify_email(g._db, email, code, 
+                                EmailUsageType.SELLER_RESET_PWD, 
+                                account_obj['id'])
 
     return MainException.OK
 
@@ -168,166 +188,16 @@ def reset_password():
     data = json.loads(request.data)
     code = data.get('code')
     password = data.get('password')
+    password = generate_password_hash(password)
 
     if code:
-        account_obj = Account()
-        confirm = account_obj.confirm_email(code, EmailUsageType.DEVELOPER_RESET_PWD)
-        # print confirm
-
-        if confirm:
-            account_obj.id = confirm['ro_id']
-            account_obj.password = password
-            account_obj.save(['password'])
+        verify_email = Account.get_verify_email(g._db, code, EmailUsageType.SELLER_RESET_PWD)
+        if verify_email:
+            seller_id = verify_email['ro_id']
+            Seller.set_seller_password(g._db, 0, seller_id, password)
             return MainException.OK
 
     raise MainException.ACCOUNT_INVALID_EMAIL_CODE
-
-
-######################seller#############################
-@api.route("/stores/<int:store_id>/sellers", methods = ["POST"])
-@require_basic_auth
-def add_seller(store_id):
-    db = g._imdb
-    form = request.form
-    name = form.get('name', '')
-    password = form.get('password', '')
-    number = form.get('number', '')
-    if not name or not password or not store_id:
-        return INVALID_PARAM()
-        
-    if not number:
-        number = None
-    password = md5.new(password).hexdigest()
-
-    group_id = Store.get_store_gid(db, store_id)
-
-    db.begin()
-    seller_id = Seller.add_seller(db, name, password, store_id, group_id, number)
-    Group.add_group_member(db, group_id, seller_id)
-    db.commit()
-
-    content = "%d,%d"%(group_id, seller_id)
-    publish_message(g.im_rds, "group_member_add", content)
-
-    obj = {"seller_id":seller_id}
-    return make_response(200, obj)
-
-@api.route("/stores/<int:store_id>/sellers", methods = ["GET"])
-@require_basic_auth
-def get_sellers(store_id):
-    db = g._imdb
-    sellers = Seller.get_sellers(db, store_id)
-    for s in sellers:
-        if 'number' in s and not s['number']:
-            s.pop('number')
-    return make_response(200, sellers)
-
-@api.route("/stores/<int:store_id>/sellers/<int:seller_id>", methods = ["DELETE"])
-@require_basic_auth
-def delete_seller(store_id, seller_id):
-    db = g._imdb
-
-    group_id = Store.get_store_gid(db, store_id)
-
-    db.begin()
-    Seller.delete_seller(db, store_id, seller_id)
-    Group.delete_group_member(db, group_id, seller_id)
-    db.commit()
-
-    content = "%d,%d"%(group_id, seller_id)
-    publish_message(g.im_rds, "group_member_remove", content)
-
-    return ""
-
-@api.route("/stores/<int:store_id>/sellers/<int:seller_id>", methods = ["PATCH"])
-@require_basic_auth
-def update_seller(store_id, seller_id):
-    db = g._imdb
-    form = request.form
-    name = form.get('name', '')
-    password = form.get('password', '')
-    if not name and not password:
-        return INVALID_PARAM()
-
-    if password:
-        password = md5.new(password).hexdigest()
-
-    db.begin()
-
-    if name:
-        Seller.set_seller_name(db, store_id, seller_id, name)
-    if password:
-        Seller.set_seller_password(db, store_id, seller_id, password)
-
-    db.commit()
-        
-    return ""
-
-######################store#############################
-@api.route("/stores", methods = ["POST"])
-@require_basic_auth
-def add_store():
-    db = g._imdb
-    developer_id = g.developer_id
-    appid = KEFU_APPID
-    name = request.form['name'] if request.form.has_key('name') else None
-    if not name:
-        return INVALID_PARAM()
-
-    db.begin()
-    gid = Group.create_group(db, appid, 0, name, False)
-    store_id = Store.create_store(db, name, gid, developer_id)
-    db.commit()
-
-    #将名称存储redis,用于后台推送
-    Store.set_store_name(g.im_rds, store_id, name)
-
-    content = "%d,%d,%d"%(gid, appid, 0)
-    publish_message(g.im_rds, "group_create", content)
-
-    obj = {"store_id":store_id}
-    return make_response(200, obj)
-
-@api.route("/stores/<int:store_id>", methods=["DELETE"])
-@require_basic_auth
-def delete_store(store_id):
-    db = g._imdb
-    group_id = Store.get_store_gid(db, store_id)
-    Store.delete_store(db, store_id, group_id)
-
-    content = "%d"%group_id
-    publish_message(g.im_rds, "group_disband", content)
-
-    return ""
-
-@api.route("/stores/<int:store_id>", methods=["PATCH"])
-@require_basic_auth
-def set_mode(store_id):
-    db = g._imdb
-    rds = g.im_rds
-    developer_id = g.developer_id
-    appid = KEFU_APPID
-    mode = int(request.form['mode']) if request.form.has_key('mode') else 0
-    if mode != 1 and mode != 2 and mode != 3:
-        return INVALID_PARAM()
-    r = Store.set_mode(db, store_id, mode)
-    if r:
-        publish_message(rds, "store_update", str(store_id))
-
-    logging.info("set store:%s mode:%s", store_id, mode)
-    return ""
-
-    
-
-@api.route("/stores", methods=["GET"])
-@require_basic_auth
-def get_stores():
-    db = g._imdb
-    developer_id = g.developer_id
-
-    stores = Store.get_stores(db, developer_id)
-    return make_response(200, stores)
-
 
 
 def _get_account(db):
@@ -401,12 +271,3 @@ def send_reset_email(code, email_cb):
     except Exception, e:
         logging.exception(e)
 
-
-
-def INVALID_PARAM():
-    e = {"error":"非法输入"}
-    logging.warn("非法输入")
-    return make_response(400, e)
-
-def publish_message(rds, channel, msg):
-    rds.publish(channel, msg)

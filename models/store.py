@@ -12,7 +12,6 @@ class Store(object):
         sql = "INSERT INTO store(name, group_id, developer_id) VALUES(%s, %s, %s)"
         r = db.execute(sql, (name, group_id, developer_id))
         store_id = r.lastrowid
-        db.commit()
         return store_id
 
     @classmethod
