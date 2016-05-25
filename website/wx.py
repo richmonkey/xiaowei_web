@@ -70,6 +70,7 @@ def wx_index():
     g.pagination.limit = limit
     g.pagination.offset = offset
 
+    print wxs
     return render_template('wx/index.html',
                            data={'offset': offset, 'list': wxs,
                                  'pagination': g.pagination,
@@ -82,63 +83,7 @@ def wx_add():
     """
 
     """
-    return render_template('wx/add.html')
-
-
-
-@wx.route('/wx', methods=["POST"])
-@_im_login_required
-def wx_add_post():
-    """
-    添加微信公众号
-
-    """
-    db = g._imdb
-    uid = session['user']['id']
-    store_id = session['user']['store_id']
-    developer_id = 0
-    
-    print "form input:", request.form
-    appid = config.KEFU_APPID
-    name = request.form.get('name')
-    if not name:
-        return INVALID_PARAM()
-        
-    gh_id = request.form.get('gh_id')
-    if not gh_id:
-        return INVALID_PARAM()
-        
-    wx_appid = request.form.get('wx_app_id')
-    if not wx_appid:
-        return INVALID_PARAM()
-
-    wx_app_secret = request.form.get('wx_app_secret')
-    if not wx_app_secret:
-        return INVALID_PARAM()
-
-    template_id = ""
-    
-    db.begin()
-
-    appid = App.gen_id(db)
-    app_key = random_ascii_string(32)
-    app_secret = random_ascii_string(32)
-
-    App.create_app(db, appid, name, developer_id, app_key, app_secret)
-
-    client_id = Client.gen_id(db)
-     
-    Client.create_client(db, client_id, appid, developer_id, Client.CLIENT_WX, "")
-     
-    Client.create_wx(db, client_id, gh_id, wx_appid, 
-                     wx_app_secret, template_id, store_id)
-    
-    db.commit()
-
-
-    return redirect(url_for('.wx_index'))
-
-
+    return redirect(url_for("message.auth"))
 
 
 @wx.route('/wx/detail/<int:appid>')

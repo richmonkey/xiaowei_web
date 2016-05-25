@@ -22,12 +22,18 @@
           <div class="game-table">
             <table>
               <tr>
-                <th><span>商店名称</span></th
+                <th><span>公众号名称</span></th>
+                <th><span>授权</span></th>
               </tr>
               {% for item in data.list %}
                 <tr>
                   <td>
                     <a href="/wx/detail/{{item.id}}">{{item.name}}</a>
+                  </td>
+                  <td>
+                    <span>
+                    {{ "已授权" if item.is_authorized else "未授权" }}
+                    </span>
                   </td>
                 </tr>
               {% else %}

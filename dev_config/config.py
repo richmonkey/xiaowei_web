@@ -8,7 +8,7 @@ APP_MODE = 'Development'
 APP_ROOT = os.path.dirname(os.path.abspath(__file__))
 
 SESSION_COOKIE_NAME = 'sid_dev'
-SESSION_COOKIE_DOMAIN = 'xiaowei.gobelieve.io'
+SESSION_COOKIE_DOMAIN = 'wx.gobelieve.io'
 SESSION_COOKIE_PATH = '/'
 SESSION_COOKIE_HTTPONLY = True
 SESSION_COOKIE_SECURE = False
@@ -59,3 +59,12 @@ KEFU_APPID = 1453
 
 #robotd
 RPC = "http://127.0.0.1:60003"
+
+IM_RPC_URL = "http://192.168.33.1:6666"
+
+#微信第三方平台的appid
+WX_COMPONENT_APPID = "wx8ec7ea1fab1fbbf2"
+WX_COMPONENT_APPSECRET = "a27fb4d3ee36978b5288df1843a29c88"
+WX_TOKEN = '__aimeitu__'
+WX_ENCODING_AES_KEY = "SlPk3YEvdcWUAE2BbCfX78tokYo8nyCQ4dk5KKBU1vu"
+

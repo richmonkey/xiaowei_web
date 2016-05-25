@@ -27,3 +27,39 @@ class App(object):
         db.execute("DELETE FROM app WHERE id=%s AND developer_id=%s", 
                    (appid, developer_id))
 
+
+
+
+    @classmethod
+    def get_wx(cls, db, gh_id):
+        sql = "SELECT app.id as id, app.name as name, app.developer_id as developer_id FROM client_wx, client, app WHERE gh_id=%s and client_wx.client_id=client.id and client.app_id=app.id"
+        r = db.execute(sql, gh_id)
+        obj = r.fetchone()
+        wx = WXApp()
+        wx.gh_id = gh_id
+        wx.appid = obj['id']
+        wx.name = obj['name']
+        wx.developer_id = obj['developer_id']
+        return wx
+     
+    @classmethod
+    def create_wx(cls, db, name, gh_id, wx_appid, refresh_token, store_id):
+        db.begin()
+        appid = App.gen_id(db)
+        app_key = random_ascii_string(32)
+        app_secret = random_ascii_string(32)
+        developer_id = 0
+     
+        App.create_app(db, appid, name, developer_id, app_key, app_secret)
+     
+        client_id = Client.gen_id(db)
+     
+        Client.create_client(db, client_id, appid, developer_id, 
+                             Client.CLIENT_WX, "")
+     
+        Client.create_wx(db, client_id, gh_id, wx_appid, 
+                         refresh_token, store_id)
+     
+        db.commit()
+        return appid
+
