@@ -16,7 +16,6 @@ import os
 import time
 import json
 import logging
-from utils.func import random_ascii_string
 import xmlrpclib
 import config
 
@@ -70,7 +69,6 @@ def wx_index():
     g.pagination.limit = limit
     g.pagination.offset = offset
 
-    print wxs
     return render_template('wx/index.html',
                            data={'offset': offset, 'list': wxs,
                                  'pagination': g.pagination,

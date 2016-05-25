@@ -4,6 +4,8 @@ http://flask.pocoo.org/docs/config/
 """
 import os
 
+DEBUG = True
+
 APP_MODE = 'Development'
 APP_ROOT = os.path.dirname(os.path.abspath(__file__))
 

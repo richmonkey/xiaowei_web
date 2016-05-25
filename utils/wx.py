@@ -3,7 +3,10 @@ import requests
 import time
 import json
 import socket
-import socks
+try:
+    import socks
+except Exception:
+    pass
 
 
 APIROOT = 'https://api.weixin.qq.com'

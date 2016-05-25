@@ -16,7 +16,14 @@ from utils.parse import Parse
 from utils.reply import Reply
 from utils.WXBizMsgCrypt import WXBizMsgCrypt
 from utils.func import random_ascii_string
-from utils.wx import WXAPI2 as WXAPI
+
+import config
+
+if config.DEBUG:
+    #使用代理服务器访问微信接口
+    from utils.wx import WXAPI2 as WXAPI
+else:
+    from utils.wx import WXAPI
 
 import redis
 import logging
@@ -24,7 +31,7 @@ import sys
 import time
 import json
 import requests
-import config
+
 from utils.mysql import Mysql
 from models import Seller
 from models import WX
