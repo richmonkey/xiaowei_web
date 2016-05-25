@@ -19,6 +19,26 @@
         text-decoration: none;
     }
 }
+%btn-i {
+    display: inline-block;
+    padding: 6px 20px;
+    margin-bottom: 0;
+    font-size: 16px;
+    font-weight: normal;
+    line-height: 1.428571429;
+    text-align: center;
+    white-space: nowrap;
+    vertical-align: middle;
+    text-decoration: none;
+    cursor: pointer;
+    background-image: none;
+    border: 1px solid transparent;
+    @include border-radius(5px);
+    @include user-select(none);
+    &:hover {
+        text-decoration: none;
+    }
+}
 %btn-s {
     display: block;
     padding: 6px 20px;
@@ -106,6 +126,9 @@
 
 .btn {
     @extend %btn;
+}
+.btn-i {
+    @extend %btn-i;
 }
 .btn-s {
     @extend %btn-s;
