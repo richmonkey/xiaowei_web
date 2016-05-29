@@ -212,6 +212,18 @@ a {
         .display-1 {
             margin: 0;
         }
+        .desc-wrapper {
+            background-color: #fff;
+            padding: 30px;
+            ul {
+                padding: 20px 20px;
+                li {
+                    line-height: 24px;
+                    color: #333;
+                    list-style-type: circle;
+                }
+            }
+        }
     }
     .one-wrapper-for-rule {
         padding-top: 30px;

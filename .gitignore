@@ -25,3 +25,4 @@ node_modules/
 test.py
 _index/*
 /config.py
+config.rb

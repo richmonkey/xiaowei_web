@@ -1,0 +1,37 @@
+{% extends "layout/im.html" %}
+
+{% block body %}
+  <div class="container">
+    <div class="breadcrumb">
+      <div class="inner-wrapper">
+        <ol>
+          <li class="active">
+          <span>接入微信</span>
+          </li>
+        </ol>
+      </div>
+    </div>
+    <div class="inner-wrapper">
+      <div class="one-wrapper">
+        <div class="panel">
+            <div class="desc-wrapper">
+                <h3>微信公众账号需授予智齿客服以下权限：</h3>
+                <ul>
+                    <li>消息与菜单权限集</li>
+                    <li>用户管理权限集</li>
+                    <li>帐号管理权限集</li>
+                    <li>网页授权权限集</li>
+                    <li>业务通知权限集</li>
+                </ul>
+                <div class="btn-bar">
+                    <a href="#" class="btn-i btn-primary mr-5" target="_blank">微信公众号登录授权</a>
+                    <a href="/wx" class="btn-i btn-default">取消</a>
+                </div>
+            </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}
+{% block script %}
+{% endblock %}
