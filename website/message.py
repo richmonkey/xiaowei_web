@@ -8,7 +8,7 @@ from flask import Blueprint
 from flask import url_for
 from flask import g
 from flask import session
-from flask import render_template_string
+from flask import render_template, render_template_string
 import hashlib
 
 from website.blueprint_utils import login_required
@@ -74,18 +74,6 @@ def check_signature(signature, timestamp, nonce):
 
     return tmpstr == signature
 
-
-auth_html = """
-<!DOCTYPE html>
-<html>
-    <head>
-    </head>
-    <body>
-      <a href="https://mp.weixin.qq.com/cgi-bin/componentloginpage?component_appid={{ appid }}&pre_auth_code={{ pre_auth_code }}&redirect_uri={{ redirect_uri }}">微信公众号登陆授权</a>
-    </body>
-</html>
-"""
-
 @root.route("/wx/test_auth")
 def test_auth():
     rds = g.im_rds
@@ -98,7 +86,7 @@ def test_auth():
 
     seller_id = 100073
     redirect_uri = url_for(".auth_callback", uid=seller_id, _external=True)
-    return render_template_string(auth_html, appid=APPID, pre_auth_code=pre_auth_code, redirect_uri=redirect_uri)
+    return render_template("wx/auth.html", appid=APPID, pre_auth_code=pre_auth_code, redirect_uri=redirect_uri)
 
     
 @root.route("/wx/auth")
@@ -114,7 +102,7 @@ def auth():
 
     seller_id = session['user']['id']
     redirect_uri = url_for(".auth_callback", uid=seller_id, _external=True)
-    return render_template_string(auth_html, appid=APPID, pre_auth_code=pre_auth_code, redirect_uri=redirect_uri)
+    return render_template("wx/auth.html", appid=APPID, pre_auth_code=pre_auth_code, redirect_uri=redirect_uri)
 
 @root.route('/wx/auth/<int:uid>/callback')
 def auth_callback(uid):
