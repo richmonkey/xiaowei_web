@@ -7,7 +7,6 @@ import logging
 import md5
 
 from models import Account
-from models import Group
 from models import Store
 from models import Seller
 
@@ -76,19 +75,14 @@ def verify_mail():
     appid = config.KEFU_APPID
     db = g._db
 
+    mode = 1#fix_mode
     db.begin()
-    group_id = Group.create_group(db, appid, 0, '', False)
-    store_id = Store.create_store(db, '', group_id, 0)
+    store_id = Store.create_store(db, '', 0, mode, 0)
     account_id = Seller.add_seller(db, email, password, store_id, email, 0)
-    Group.add_group_member(db, group_id, account_id)
     Account.insert_verify_email(db, email, code, EmailUsageType.SELLER_VERIFY, account_id)
     db.commit()
 
-    content = "%d,%d,%d"%(group_id, appid, 0)
-    publish_message(g.im_rds, "group_create", content)
-
-    content = "%d,%d"%(group_id, account_id)
-    publish_message(g.im_rds, "group_member_add", content)
+    Store.add_seller_id(g.im_rds, store_id, account_id)
 
 
     if 'user' not in session:
