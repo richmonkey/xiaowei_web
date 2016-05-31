@@ -84,7 +84,7 @@ def test_auth():
         if not pre_auth_code:
             return "error"
 
-    seller_id = 100073
+    seller_id = 100088
     redirect_uri = url_for(".auth_callback", uid=seller_id, _external=True)
     return render_template("wx/auth.html", appid=APPID, pre_auth_code=pre_auth_code, redirect_uri=redirect_uri)
 
