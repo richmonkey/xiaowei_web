@@ -1,0 +1,59 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>gobelieve即时通讯</title>
+    <link rel="stylesheet" href="{{ url_for('web.static', filename='themes/default/css/sdk.css', v='0.12') }}" />
+    <link href="{{ url_for('web.favicon') }}" type="image/x-icon" rel=icon>
+    <link href="{{ url_for('web.favicon') }}" type="image/x-icon" rel="shortcut icon">
+</head>
+<body>
+    <div class="header">
+      <div class="inner-wrapper">
+          <div class="logo"><a href="{{ url_for('web.index') }}">GoBelieve开发者中心</a></div>
+        
+      </div>
+    </div>
+    <div class="container">
+    <div class="breadcrumb">
+      <div class="inner-wrapper">
+        <ol>
+          <li class="active">
+          <span>接入微信</span>
+          </li>
+        </ol>
+      </div>
+    </div>
+    <div class="inner-wrapper">
+      <div class="one-wrapper">
+        <div class="panel">
+            <div class="desc-wrapper">
+                <h3>微信公众账号需授予智齿客服以下权限：</h3>
+                <ul>
+                    <li>消息与菜单权限集</li>
+                    <li>用户管理权限集</li>
+                    <li>帐号管理权限集</li>
+                    <li>网页授权权限集</li>
+                    <li>业务通知权限集</li>
+                </ul>
+                <div class="btn-bar">
+                    <a href="https://mp.weixin.qq.com/cgi-bin/componentloginpage?component_appid={{ appid }}&pre_auth_code={{ pre_auth_code }}&redirect_uri={{ redirect_uri }}" class="btn-i btn-primary mr-5" target="_blank">微信公众号登录授权</a>
+                    <a href="/wx" class="btn-i btn-default">取消</a>
+                </div>
+            </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+    <div class="footer">
+        <div class="inner-wrapper">
+            <p class="copyright">&copy; gobelieve.io. All Rights Reserved.</p>
+        </div>
+    </div>
+</body>
+</html>
+
+
+
+

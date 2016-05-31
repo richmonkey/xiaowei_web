@@ -86,7 +86,7 @@ def test_auth():
 
     seller_id = 100088
     redirect_uri = url_for(".auth_callback", uid=seller_id, _external=True)
-    return render_template("wx/auth.html", appid=APPID, pre_auth_code=pre_auth_code, redirect_uri=redirect_uri)
+    return render_template("wx/test_auth.html", appid=APPID, pre_auth_code=pre_auth_code, redirect_uri=redirect_uri)
 
     
 @root.route("/wx/auth")
