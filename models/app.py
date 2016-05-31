@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 import time
 from website.core import ObjectType
-
+from utils.func import random_ascii_string
 class App(object):
     @classmethod
     def gen_id(cls, db):
