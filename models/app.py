@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import time
 from website.core import ObjectType
+from client import Client
 from utils.func import random_ascii_string
 class App(object):
     @classmethod
