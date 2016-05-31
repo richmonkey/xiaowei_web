@@ -7,7 +7,6 @@ import os
 DEBUG = True
 
 APP_MODE = 'Development'
-APP_ROOT = os.path.dirname(os.path.abspath(__file__))
 
 SESSION_COOKIE_NAME = 'sid_dev'
 SESSION_COOKIE_DOMAIN = 'wx.gobelieve.io'
@@ -47,10 +46,6 @@ MAIL_USE_SSL = True
 MAIL_DEFAULT_SENDER = 'webmaster@gobelieve.io'
 MAIL_DEBUG = True
 MAIL_SUPPRESS_SEND = False
-
-
-# 日志目录
-LOG_DIR = os.path.join(APP_ROOT, '.logs')
 
 
 #微信
