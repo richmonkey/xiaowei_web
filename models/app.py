@@ -3,6 +3,14 @@ import time
 from website.core import ObjectType
 from client import Client
 from utils.func import random_ascii_string
+
+class WXApp(object):
+    def __init__(self):
+        self.gh_id = ""
+        self.appid = 0
+        self.name = ""
+        self.developer_id = 0
+
 class App(object):
     @classmethod
     def gen_id(cls, db):
