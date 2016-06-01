@@ -328,7 +328,7 @@ def receive(wx_appid):
     wx_crypt = WXBizMsgCrypt(TOKEN, ENCODING_AES_KEY, APPID)
     r, xml = wx_crypt.DecryptMsg(request.data, msg_signature, timestamp, nonce)
 
-    logging.debug("receive:%s %s %s", wx_appid, r, xml)
+    logging.debug("receive wx message:%s %s %s", wx_appid, r, xml)
 
     data = Parse.parse(xml)
     msg_type = data.get('MsgType')
@@ -343,16 +343,26 @@ def receive(wx_appid):
         gh_id = data.get('ToUserName')
 
         # 消息格式检查
-        if msg_type not in ('text', 'image', 'voice'):
+        if msg_type not in ('text', 'image', 'voice', 'location'):
+            print "该消息格式不支持, 目前只支持文本,图片或者语"
             return Reply.text(openid, gh_id, '该消息格式不支持, 目前只支持文本,图片或者语音')
 
-        content = data.get('Content')
-        logging.debug("msg:%s %s %s %s", openid, gh_id, msg_type, content)
+        logging.debug("msg:%s %s %s", openid, gh_id, msg_type)
 
         u = get_user(rds, db, gh_id, openid)
         logging.debug("store id:%s seller id:%s", u.store_id, u.seller_id)
         if msg_type == 'text':
+            content = data.get('Content')
+            logging.debug("text content:%s", content)
             obj = {"text":content}
+            c = json.dumps(obj)
+            seller_id = send_customer_message(u.appid, u.uid, u.store_id, u.seller_id, c)
+            if seller_id != u.seller_id:
+                WXUser.set_seller_id(rds, gh_id, openid, seller_id)
+        elif msg_type == 'location':
+            x = data.get("Location_X")
+            y = data.get("Location_Y")
+            obj = {"location":{"latitude":x, "longitude":y}}
             c = json.dumps(obj)
             seller_id = send_customer_message(u.appid, u.uid, u.store_id, u.seller_id, c)
             if seller_id != u.seller_id:
