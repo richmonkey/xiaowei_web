@@ -21,9 +21,11 @@ import config
 
 if config.DEBUG:
     #使用代理服务器访问微信接口
-    from utils.wx import WXAPI2 as WXAPI
+    from utils.wx import WXOpenAPI2 as WXOpenAPI
+    from utils.wx import WXMPAPI2 as WXMPAPI
 else:
-    from utils.wx import WXAPI
+    from utils.wx import WXOpenAPI
+    from utils.wx import WXMPAPI
 
 import redis
 import logging
@@ -32,7 +34,6 @@ import time
 import json
 import requests
 
-from utils.mysql import Mysql
 from models import Seller
 from models import WX
 from models import WXUser
@@ -45,6 +46,11 @@ TOKEN = config.WX_TOKEN
 ENCODING_AES_KEY = config.WX_ENCODING_AES_KEY
 APPID = config.WX_COMPONENT_APPID
 APPSECRET = config.WX_COMPONENT_APPSECRET
+
+from wx_token import get_user
+from wx_token import get_access_token
+from wx_token import gen_pre_auth_code
+from wx_token import get_component_access_token
 
 def _im_login_required(f):
     return login_required(f, redirect_url_for='.wx_index')
@@ -120,7 +126,7 @@ def auth_callback(uid):
     if not component_token:
         return "授权失败"
 
-    wx = WXAPI(APPID, APPSECRET, component_token)
+    wx = WXOpenAPI(APPID, APPSECRET, component_token)
     r = wx.request_auth(auth_code)
     if r:
         info = r['authorization_info']
@@ -152,15 +158,19 @@ def auth_callback(uid):
 
         app = Client.get_wx(db, wx_appid)
         if app:
-            if app['store_id'] != store_id:
+            if app['store_id'] != 0 and app['store_id'] != store_id:
                 return "已被其它账号授权"
+            db.begin()
+            Client.set_wx_store_id(db, wx_appid, store_id)
             Client.update_wx(db, wx_appid, refresh_token, 1)
+            db.commit()
         else:
             App.create_wx(db, name, gh_id, wx_appid, refresh_token, store_id)
         WX.set_access_token(rds, wx_appid, access_token, expires_in)
         return "授权成功"
     else:
         return "获取令牌失败"
+
 
 @root.route('/wx/messages')
 def validate():
@@ -174,56 +184,6 @@ def validate():
     else:
         return ''
 
-def get_component_access_token(rds):
-    component_token = WX.get_component_access_token(rds)
-    if not component_token:
-        ticket = WX.get_ticket(rds)
-        if not ticket:
-            return None
-
-        wx = WXAPI(APPID, APPSECRET)
-        r = wx.request_token(ticket)
-        logging.debug("request token:%s", r)
-        if r.get('errcode'):
-            logging.error("request token error:%s %s", 
-                          r['errcode'], r['errmsg'])
-            return None
-
-        access_token = r['component_access_token']
-        expires = r['expires_in']
-        #提前10分钟过期
-        if expires > 20*60:
-            expires = expires - 10*60
-        logging.debug("request component access token:%s expires:%s", 
-                      access_token, r['expires_in'])
-        WX.set_componet_access_token(rds, access_token, expires)
-        
-        component_token = access_token
-
-    return component_token
-
-def gen_pre_auth_code(rds):
-    access_token = get_component_access_token(rds)
-    if not access_token:
-        return None
-
-    wx = WXAPI(APPID, APPSECRET, access_token)
-    r = wx.request_pre_auth_code()
-    if r.get('errcode'):
-        logging.error("request pre auth code error:%s %s", 
-                      r['errcode'], r['errmsg'])
-        return None
-    
-    pre_auth_code = r['pre_auth_code']
-    expires = r['expires_in']
-    #提前5分钟过期
-    if expires > 10*60:
-        expires = expires - 5*60
-    WX.set_pre_auth_code(rds, pre_auth_code, expires)
-    logging.debug("request pre auth code:%s expires:%s", 
-                  pre_auth_code, r['expires_in'])
-    
-    return pre_auth_code
 
 def handle_unauthorized(authorizer_appid):
     db = g._db
@@ -236,7 +196,57 @@ def handle_authorized(data):
 
     logging.debug("authorized appid:%s code:%s expire:%s", 
                   authorizer_appid, authorization_code, code_expire)
+
+    rds = g.im_rds
+    db = g._db
+    auth_code = authorization_code
+    store_id = 0
+
+    component_token = get_component_access_token(rds)
+    if not component_token:
+        return "授权失败"
+
+    wx = WXOpenAPI(APPID, APPSECRET, component_token)
+    r = wx.request_auth(auth_code)
+    if r:
+        info = r['authorization_info']
+        wx_appid = info['authorizer_appid']
+        access_token = info['authorizer_access_token']
+        expires_in = info['expires_in']
+        #提前10分钟过期
+        if expires_in > 20*60:
+            expires_in = expires_in - 10*60
+
+        refresh_token = info['authorizer_refresh_token']
+        funcs = info['func_info']
+        fids = []
+        for f in funcs:
+            fid = f['funcscope_category']['id']
+            fids.append(fid)
         
+        AUTHORIZATION_MESSAGE = 1
+        if AUTHORIZATION_MESSAGE not in fids:
+            logging.warning("no message authorization")
+            return "没有消息权限"
+
+        app_info = wx.request_info(wx_appid)
+        if not app_info:
+            logging.warning("request app info fail")
+            return "获取公众号信息失败"
+        name = app_info['authorizer_info']['nick_name']
+        gh_id = app_info['authorizer_info']['user_name']
+
+        app = Client.get_wx(db, wx_appid)
+        if app:
+            if app['store_id'] != 0 and app['store_id'] != store_id:
+                return "已被其它账号授权"
+            Client.update_wx(db, wx_appid, refresh_token, 1)
+        else:
+            App.create_wx(db, name, gh_id, wx_appid, refresh_token, store_id)
+        WX.set_access_token(rds, wx_appid, access_token, expires_in)
+        return "授权成功"
+    else:
+        return "获取令牌失败"
 
 def handle_ticket(data):
     rds = g.im_rds
@@ -339,29 +349,7 @@ def receive(wx_appid):
         content = data.get('Content')
         logging.debug("msg:%s %s %s %s", openid, gh_id, msg_type, content)
 
-        u = WXUser.get_wx_user(rds, gh_id, openid)
-        if not u:
-            wx = App.get_wx(db, gh_id)
-            if not wx:
-                logging.error("invalid gh_id:%s", gh_id)
-                return ''
-
-            store_id = Client.get_store_id(db, gh_id)
-            if not store_id:
-                logging.error("can't find store id with gh_id:%s", gh_id)
-                return ''
-            
-            uid = WXUser.gen_id(rds)
-            u = WXUser()
-            u.gh_id = gh_id
-            u.openid = openid
-            u.appid = wx.appid
-            u.uid = uid
-            u.store_id = store_id
-            u.seller_id = 0
-            WXUser.save_wx_user(rds, u)
-            WXUser.bind_openid(rds, u.appid, u.uid, openid)
-
+        u = get_user(rds, db, gh_id, openid)
         logging.debug("store id:%s seller id:%s", u.store_id, u.seller_id)
         if msg_type == 'text':
             obj = {"text":content}
