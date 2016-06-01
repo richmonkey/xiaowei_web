@@ -114,7 +114,7 @@ def get_access_token(rds, db, wx_appid):
         else:
             logging.debug("refresh token is unchanged")
 
-        weixin.set_access_token(rds, wx_appid, token, expires)
+        WX.set_access_token(rds, wx_appid, token, expires)
         access_token = token
 
     return access_token
