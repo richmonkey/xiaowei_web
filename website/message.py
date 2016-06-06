@@ -156,12 +156,12 @@ def auth_callback(uid):
         name = app_info['authorizer_info']['nick_name']
         gh_id = app_info['authorizer_info']['user_name']
 
-        app = Client.get_wx(db, wx_appid)
+        app = App.get_wx(db, wx_appid)
         if app:
             if app['store_id'] != 0 and app['store_id'] != store_id:
                 return "已被其它账号授权"
             db.begin()
-            Client.set_wx_store_id(db, wx_appid, store_id)
+            App.set_store_id(db, wx_appid, store_id)
             Client.update_wx(db, wx_appid, refresh_token, 1)
             db.commit()
         else:
@@ -236,7 +236,7 @@ def handle_authorized(data):
         name = app_info['authorizer_info']['nick_name']
         gh_id = app_info['authorizer_info']['user_name']
 
-        app = Client.get_wx(db, wx_appid)
+        app = App.get_wx(db, wx_appid)
         if app:
             if app['store_id'] != 0 and app['store_id'] != store_id:
                 return "已被其它账号授权"

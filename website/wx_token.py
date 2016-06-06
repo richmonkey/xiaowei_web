@@ -82,10 +82,10 @@ def gen_pre_auth_code(rds):
 def get_access_token(rds, db, wx_appid):
     access_token = WX.get_access_token(rds, wx_appid)
     if not access_token:
-        client = Client.get_wx(db, wx_appid)
-        if not client:
+        app = App.get_wx(db, wx_appid)
+        if not app:
             return None
-        refresh_token = client['refresh_token']
+        refresh_token = app['refresh_token']
 
         component_token = get_component_access_token(rds)
         if not component_token:
@@ -124,7 +124,7 @@ def get_user(rds, db, gh_id, openid):
     now = int(time.time())
     u = WXUser.get_wx_user(rds, gh_id, openid)
     if not u:
-        wx = Client.get_wx_by_ghid(db, gh_id)
+        wx = App.get_wx_by_ghid(db, gh_id)
         if not wx:
             logging.error("invalid gh_id:%s", gh_id)
             return None
@@ -164,7 +164,7 @@ def get_user(rds, db, gh_id, openid):
         WXUser.set_user_name(rds, u.appid, u.uid, name, avatar)
     elif now - u.timestamp > 24*3600:
         #更新用户信息
-        wx = Client.get_wx_by_ghid(db, gh_id)
+        wx = App.get_wx_by_ghid(db, gh_id)
         if not wx:
             logging.error("invalid gh_id:%s", gh_id)
             return None

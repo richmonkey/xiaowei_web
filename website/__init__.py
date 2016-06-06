@@ -78,11 +78,12 @@ def init_app(app):
     from wx import wx
     from message import root as message
     from account import account
-
+    from question import question
 
     app.register_blueprint(web)
     app.register_blueprint(api)
     app.register_blueprint(wx)
+    app.register_blueprint(question)
     app.register_blueprint(message)
     app.register_blueprint(account)
 

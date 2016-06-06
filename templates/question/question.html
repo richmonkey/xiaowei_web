@@ -1,5 +1,6 @@
 {% extends "layout/im.html" %}
 
+
 {% block body %}
   <div class="container">
     <div class="breadcrumb">
@@ -14,32 +15,33 @@
       <div class="one-wrapper">
         <div class="panel">
           <div class="opt-bar clearfix">
-            <a href="/wx/add" class="rt btn-s btn-success" data-action="redirect">添加公众号</a>
+            <a href="/question/add" class="rt btn-s btn-success" data-action="redirect">添加问题</a>
             <input type="hidden" name="" id="offset" value="{{ data.offset }}"/>
           </div>
           <input type="hidden" name="" id="offset" value="{{data.offset}}" />
           <div class="game-table">
             <table>
               <tr>
-                <th><span>公众号名称</span></th>
-                <th><span>授权</span></th>
+                <th><span>ID</span></th>
+                <th><span>问题</span></th>
               </tr>
+
               {% for item in data.list %}
                 <tr>
                   <td>
-                    <a href="/wx/detail/{{item.id}}">{{item.name}}</a>
+                    {{item.id}}
                   </td>
-                  <td>
-                    <span>
-                    {{ "已授权" if item.is_authorized else "未授权" }}
-                    </span>
-                  </td>
+                    <td>
+                      {{item.question}}
+                    </td>
                 </tr>
               {% else %}
                 <tr>
                   <td colspan="5"><div class="none-data">无数据</div></td>
                 </tr>
               {% endfor %}
+
+
             </table>
           </div>
           <div class="opt-bar pagination-bar text-align-right">
@@ -53,3 +55,5 @@
 {% block script %}
   <script>seajs.use('dist/app/im/index/index');</script>
 {% endblock %}
+
+

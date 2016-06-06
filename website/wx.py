@@ -61,8 +61,8 @@ def wx_index():
     store_id = session['user']['store_id']
 
     db = g._imdb
-    count = Client.get_wx_count(db, store_id)
-    wxs = Client.get_wx_page(db, store_id, offset, limit)
+    count = App.get_wx_count(db, store_id)
+    wxs = App.get_wx_page(db, store_id, offset, limit)
 
     g.pagination.setdefault()
     g.pagination.rows_found = count
@@ -92,7 +92,7 @@ def wx_detail(appid):
 
     """
     db = g._db
-    app = Client.get_wx_app(db, appid)
+    app = App.get_wx_app(db, appid)
 
     return render_template('wx/detail.html', data={'info': app})
 
