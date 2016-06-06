@@ -57,6 +57,22 @@ a {
     @extend %header;
     position: relative;
     *z-index: 1003;
+    .nav-list {
+        padding-left: 20px;
+        float: left;
+        @include clearfix;
+        li {
+            float: left;
+            height: 64px;
+            padding: 0 10px;
+            text-align: center;
+            a {
+                color: #fff;
+                line-height: 64px;
+                vertical-align: middle;
+            }
+        }
+    }
     .nav {
         float: left;
         @extend %hd-nav;
