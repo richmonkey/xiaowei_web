@@ -122,6 +122,9 @@ def auth_callback(uid):
     seller = Seller.get_seller(db, uid)
     store_id = seller['store_id']
 
+    logging.debug("auth callback code:%s uid:%s store_id:%s", 
+                  auth_code, uid, store_id)
+
     component_token = get_component_access_token(rds)
     if not component_token:
         return "授权失败"
@@ -130,6 +133,7 @@ def auth_callback(uid):
     r = wx.request_auth(auth_code)
     if r:
         info = r['authorization_info']
+        logging.debug("auth callback info:%s", info)
         wx_appid = info['authorizer_appid']
         access_token = info['authorizer_access_token']
         expires_in = info['expires_in']

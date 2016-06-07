@@ -53,8 +53,8 @@ class Client(object):
                        
     @classmethod
     def create_wx(cls, db, client_id, gh_id, wx_appid, refresh_token):
-        sql = "INSERT INTO client_wx(client_id, gh_id, wx_app_id, refresh_token, store_id, is_authorized) VALUES(%s, %s, %s, %s, %s, %s)"
-        r = db.execute(sql, (client_id, gh_id, wx_appid, refresh_token, store_id, 1))
+        sql = "INSERT INTO client_wx(client_id, gh_id, wx_app_id, refresh_token, is_authorized) VALUES(%s, %s, %s, %s, %s)"
+        r = db.execute(sql, (client_id, gh_id, wx_appid, refresh_token, 1))
         return r.lastrowid
 
     @classmethod
@@ -67,12 +67,6 @@ class Client(object):
     def set_wx_authorized(cls, db, wx_appid):
         sql = "UPDATE client_wx SET is_authorized=%s WHERE wx_app_id=%s"
         r = db.execute(sql, (1, wx_appid))
-        return r.rowcount
-
-    @classmethod
-    def set_wx_store_id(cls, db, wx_appid, store_id):
-        sql = "UPDATE client_wx SET store_id=%s WHERE wx_app_id=%s"
-        r = db.execute(sql, (store_id, wx_appid))
         return r.rowcount
         
     @classmethod
