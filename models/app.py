@@ -3,6 +3,7 @@ import time
 from website.core import ObjectType
 from client import Client
 from utils.func import random_ascii_string
+import copy
 
 class WXApp(object):
     def __init__(self):
@@ -100,6 +101,53 @@ class App(object):
     @classmethod
     def get_wx_page(cls, db, store_id, offset, limit):
         sql = "SELECT app.id as id, app.name as name, app.store_id as store_id, client_wx.gh_id as gh_id, client_wx.wx_app_id as wx_app_id, client_wx.is_authorized as is_authorized FROM client_wx, client, app WHERE client_wx.client_id=client.id AND app.store_id=%s AND client.app_id=app.id LIMIT %s, %s"
+        r = db.execute(sql, (store_id, offset, limit))
+        return list(r.fetchall())
+
+
+    @classmethod
+    def get_app(cls, db, appid):
+        sql = "SELECT app.id as id, app.name as name, `key`, `secret`, store_id FROM app WHERE app.id=%s"
+        r = db.execute(sql, appid)
+        app = r.fetchone()
+        
+        #android
+        sql = "SELECT platform_type, platform_identity, is_active, client_certificate.client_id as client_id, client_certificate.pkey as pkey, client_certificate.cer as cer, client_certificate.update_time as update_time, xinge_access_id, xinge_secret_key, mi_appid, mi_secret_key, hw_appid, hw_secret_key, gcm_sender_id, gcm_api_key FROM app, client, client_certificate WHERE app.id=%s AND client.platform_type=1 AND client.app_id=app.id AND client.id=client_certificate.client_id"
+        r = db.execute(sql, appid)
+        android_client = r.fetchone()
+
+        #ios
+        sql = "SELECT platform_type, platform_identity, is_active, client_apns.client_id as client_id, sandbox_key, sandbox_key_secret, production_key, production_key_secret, sandbox_key_utime, production_key_utime FROM app, client, client_apns WHERE app.id=%s AND platform_type=2 AND client.app_id=app.id AND client.id=client_apns.client_id"
+        r = db.execute(sql, appid)
+        ios_client = r.fetchone()
+
+        app['clients'] = []
+        if app and android_client:
+            app['android'] = android_client
+            c = copy.deepcopy(android_client)
+            android_client['certificate'] = c
+            app['clients'].append(android_client)
+        if app and ios_client:
+            app['ios'] = ios_client
+            c = copy.deepcopy(ios_client)
+            ios_client['apns'] = c
+            app['clients'].append(ios_client)
+        
+        return app
+
+
+    @classmethod
+    def get_app_count(cls, db, store_id):
+        sql = "SELECT count(id) as count FROM app WHERE store_id=%s"
+        r = db.execute(sql, store_id)
+        obj = r.fetchone()
+        count = obj['count']
+        return count
+
+
+    @classmethod
+    def get_app_page(cls, db, store_id, offset, limit):
+        sql = "SELECT app.id as id, app.name as name, app.store_id as store_id FROM app WHERE  app.store_id=%s LIMIT %s, %s"
         r = db.execute(sql, (store_id, offset, limit))
         return list(r.fetchall())
 

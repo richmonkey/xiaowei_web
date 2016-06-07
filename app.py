@@ -3,10 +3,7 @@
 """
 import config
 import time, math
-from flask import Flask, Markup, render_template, request
-from utils.func import init_logger
-from utils.session import RedisSession
-
+import redis
 
 from flask import g, request, render_template
 from utils.pager import Pager
@@ -17,23 +14,24 @@ from utils.mysql import Mysql
 from config import APP_MODE
 from config import MYSQL
 
-import redis
-import config
+from flask import Flask, Markup, render_template, request
 
+from utils.func import init_logger
+from utils.session import RedisSession
+import config
 
 app = Flask(__name__)
 app.config.from_object(config)
-
-
-LOGGER = init_logger(__name__)
-init_logger(None)
-
 
 rds = redis.StrictRedis(host=config.REDIS_HOST, 
                          port=config.REDIS_PORT, 
                          db=config.REDIS_DB,
                          password=config.REDIS_PASSWORD)
 
+
+LOGGER = init_logger(__name__)
+
+init_logger(None)
 
 def http_error_handler(err):
     LOGGER.error(err)
@@ -72,37 +70,6 @@ def app_teardown(exception):
 
 
 
-# 初始化接口
-def init_app(app):
-    app.teardown_appcontext(app_teardown)
-    app.before_request(before_request)
-    for error in range(400, 420) + range(500, 506):
-        app.error_handler_spec[None][error] = http_error_handler
-    app.register_error_handler(ResponseMeta, response_meta_handler)
-    app.register_error_handler(Exception, generic_error_handler)
-
-    from utils.mail import Mail
-
-    Mail.init_app(app)
-
-    # 注册接口
-    from website.api import api
-    from website.web import web
-    from website.wx import wx
-    from website.message import root as message
-    from website.account import account
-    from website.question import question
-
-    app.register_blueprint(web)
-    app.register_blueprint(api)
-    app.register_blueprint(wx)
-    app.register_blueprint(question)
-    app.register_blueprint(message)
-    app.register_blueprint(account)
-
-
-
-
 @app.context_processor
 def pjax_processor():
     def get_template(base, pjax=None):
@@ -136,8 +103,54 @@ def datetime_filter(n, format='%Y-%m-%d %H:%M'):
     return time.strftime(format, arr)
 
 
+from flask import Blueprint, redirect, url_for
+from website.blueprint_utils import login_required
+
+wx = Blueprint('wx', __name__, template_folder='templates', static_folder='static')
+
+
+
+def _im_login_required(f):
+    return login_required(f, redirect_url_for='.wx_index')
+
+@wx.route('/wx')
+@_im_login_required
+def wx_index():
+    return redirect(url_for('application.app_index'))
+
+
+# 初始化接口
+def init_app(app):
+    app.teardown_appcontext(app_teardown)
+    app.before_request(before_request)
+    for error in range(400, 420) + range(500, 506):
+        app.error_handler_spec[None][error] = http_error_handler
+    app.register_error_handler(ResponseMeta, response_meta_handler)
+    app.register_error_handler(Exception, generic_error_handler)
+
+    from utils.mail import Mail
+
+    Mail.init_app(app)
+
+    # 注册接口
+    from website.api import api
+    from website.web import web
+    from website.application import app as application
+    from website.question import question
+    from website.account import account
+
+
+    app.register_blueprint(api)
+    app.register_blueprint(web)
+    app.register_blueprint(application)
+    app.register_blueprint(question)
+    app.register_blueprint(account)
+
+    app.register_blueprint(wx)
+
+
 init_app(app)
 RedisSession.init_app(app)
 
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=61000)
+    app.run(debug=True, host='0.0.0.0', port=61001)

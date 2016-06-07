@@ -1,0 +1,46 @@
+{% extends "layout/im.html" %}
+
+{% block breadcrumb %}
+  <div class="breadcrumb">
+    <div class="inner-wrapper">
+      <ol>
+        <li>
+          <a href="/app">GoBelieve</a>
+        </li>
+        <li class="arrow">
+          <span>&gt;</span>
+        </li>
+        <li class="active">
+          <span>{{ '创建应用' if data.method == 'add' else '修改应用' }}</span>
+        </li>
+      </ol>
+    </div>
+  </div>
+{% endblock %}
+
+{% block body %}
+  <div class="container">
+    {{ self.breadcrumb() }}
+    <div class="inner-wrapper">
+      <div class="one-wrapper">
+        <div class="panel">
+          <div class="app-form">
+            <div class="center-section">
+              <div class="form-1 push-add-form">
+                <form accept-charset="utf-8" method="post" action="/app{{ ('/' + data.game.id|string) if data.game.id else '' }}" enctype="multipart/form-data">
+                  {% include 'widget/game_form.html' %}
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+{% endblock %}
+
+{% block script %}
+  <script>
+    seajs.use('dist/app/im/game_add/index');
+  </script>
+{% endblock %}
