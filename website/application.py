@@ -44,7 +44,6 @@ def _im_login_required(f):
     return login_required(f, redirect_url_for='.app_index')
 
 
-
 @app.before_request
 def before_request():
     g.uri_path = request.path
@@ -57,25 +56,13 @@ def app_index():
     store 模块首页
 
     """
-    offset = int(request.args.get('offset', 0))
-    limit = int(request.args.get('limit', 10))
-
     uid = session['user']['id']
     store_id = session['user']['store_id']
 
     db = g._imdb
-    count = App.get_app_count(db, store_id)
-    apps = App.get_app_page(db, store_id, offset, limit)
+    apps = App.get_apps(db, store_id)
 
-    g.pagination.setdefault()
-    g.pagination.rows_found = count
-    g.pagination.limit = limit
-    g.pagination.offset = offset
-
-    return render_template('app/index.html',
-                           data={'offset': offset, 'list': apps,
-                                 'pagination': g.pagination,
-                                 })
+    return render_template('app/index.html', data={'list':apps})
 
 
 @app.route('/app/add')
@@ -95,7 +82,6 @@ def app_add():
                                {'platform_type': PlatformType.IOS, 'is_active': 0}]
     
     return render_template('app/add.html', data=data)
-
 
 
 @app.route('/app/detail/<int:appid>')

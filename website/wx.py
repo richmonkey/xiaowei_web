@@ -54,25 +54,13 @@ def wx_index():
     store 模块首页
 
     """
-    offset = int(request.args.get('offset', 0))
-    limit = int(request.args.get('limit', 10))
-
     uid = session['user']['id']
     store_id = session['user']['store_id']
 
     db = g._imdb
-    count = App.get_wx_count(db, store_id)
-    wxs = App.get_wx_page(db, store_id, offset, limit)
+    wxs = App.get_wxs(db, store_id)
 
-    g.pagination.setdefault()
-    g.pagination.rows_found = count
-    g.pagination.limit = limit
-    g.pagination.offset = offset
-
-    return render_template('wx/index.html',
-                           data={'offset': offset, 'list': wxs,
-                                 'pagination': g.pagination,
-                                 })
+    return render_template('wx/index.html', data={'list': wxs})
 
 
 @wx.route('/wx/add')

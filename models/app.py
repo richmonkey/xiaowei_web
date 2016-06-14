@@ -104,6 +104,11 @@ class App(object):
         r = db.execute(sql, (store_id, offset, limit))
         return list(r.fetchall())
 
+    @classmethod
+    def get_wxs(cls, db, store_id):
+        sql = "SELECT app.id as id, app.name as name, app.store_id as store_id, client_wx.gh_id as gh_id, client_wx.wx_app_id as wx_app_id, client_wx.is_authorized as is_authorized FROM client_wx, client, app WHERE client_wx.client_id=client.id AND app.store_id=%s AND client.app_id=app.id"
+        r = db.execute(sql, (store_id,))
+        return list(r.fetchall())
 
     @classmethod
     def get_app(cls, db, appid):
@@ -151,6 +156,11 @@ class App(object):
         r = db.execute(sql, (store_id, offset, limit))
         return list(r.fetchall())
 
+    @classmethod
+    def get_apps(cls, db, store_id):
+        sql = "SELECT app.id as id, app.name as name, app.store_id as store_id FROM app WHERE  app.store_id=%s"
+        r = db.execute(sql, (store_id,))
+        return list(r.fetchall())
 
     @classmethod
     def set_store_id(cls, db, appid, store_id):

@@ -15,9 +15,7 @@
         <div class="panel">
           <div class="opt-bar clearfix">
             <a href="/wx/add" class="rt btn-s btn-success" data-action="redirect">添加公众号</a>
-            <input type="hidden" name="" id="offset" value="{{ data.offset }}"/>
           </div>
-          <input type="hidden" name="" id="offset" value="{{data.offset}}" />
           <div class="game-table">
             <table>
               <tr>
@@ -41,9 +39,6 @@
                 </tr>
               {% endfor %}
             </table>
-          </div>
-          <div class="opt-bar pagination-bar text-align-right">
-            {{ pagination('wx.wx_index', data.pagination) }}
           </div>
         </div>
       </div>
