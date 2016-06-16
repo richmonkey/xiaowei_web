@@ -140,11 +140,7 @@ def get_user(rds, db, gh_id, openid):
             return None
 
         mp = WXMPAPI(access_token)
-        r = mp.get_user_by_openid(openid)
-        if r.get('errcode'):
-            logging.error("get user error:%s %s", 
-                          r['errcode'], r['errmsg'])
-            return None
+
         
         uid = WXUser.gen_id(rds)
         u = WXUser()
@@ -158,10 +154,15 @@ def get_user(rds, db, gh_id, openid):
         WXUser.save_wx_user(rds, u)
         WXUser.bind_openid(rds, u.appid, u.uid, openid)
 
-        avatar = r.get('headimgurl', '')
-        name = r.get('nickname', '')
-        logging.debug("gh_id:%s openid:%s name:%s avatar:%s", gh_id, openid, name, avatar)
-        WXUser.set_user_name(rds, u.appid, u.uid, name, avatar)
+        r = mp.get_user_by_openid(openid)
+        if r.get('errcode'):
+            logging.error("get user error:%s %s", 
+                          r['errcode'], r['errmsg'])
+        else:
+            avatar = r.get('headimgurl', '')
+            name = r.get('nickname', '')
+            logging.debug("gh_id:%s openid:%s name:%s avatar:%s", gh_id, openid, name, avatar)
+            WXUser.set_user_name(rds, u.appid, u.uid, name, avatar)
     elif now - u.timestamp > 24*3600:
         #更新用户信息
         wx = App.get_wx_by_ghid(db, gh_id)
@@ -179,13 +180,12 @@ def get_user(rds, db, gh_id, openid):
         if r.get('errcode'):
             logging.error("get user error:%s %s", 
                           r['errcode'], r['errmsg'])
-            return None
-        
-        avatar = r.get('headimgurl', '')
-        name = r.get('nickname', '')
-        logging.debug("gh_id:%s openid:%s name:%s avatar:%s", gh_id, openid, name, avatar)
-        WXUser.set_user_name(rds, u.appid, u.uid, name, avatar)
-        WXUser.set_timestamp(rds, gh_id, openid, now)
+        else:
+            avatar = r.get('headimgurl', '')
+            name = r.get('nickname', '')
+            logging.debug("gh_id:%s openid:%s name:%s avatar:%s", gh_id, openid, name, avatar)
+            WXUser.set_user_name(rds, u.appid, u.uid, name, avatar)
+            WXUser.set_timestamp(rds, gh_id, openid, now)
         
     return u
 
