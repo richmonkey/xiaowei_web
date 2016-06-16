@@ -165,7 +165,7 @@ def auth_callback(uid):
             if app['store_id'] != 0 and app['store_id'] != store_id:
                 return "已被其它账号授权"
             db.begin()
-            App.set_store_id(db, wx_appid, store_id)
+            App.set_store_id(db, app['id'], store_id)
             Client.update_wx(db, wx_appid, refresh_token, 1)
             db.commit()
         else:
