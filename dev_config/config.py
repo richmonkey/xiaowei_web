@@ -58,6 +58,10 @@ KEFU_APPID = 1453
 RPC = "http://127.0.0.1:60003"
 
 IM_RPC_URL = "http://192.168.33.1:6666"
+IM_URL = "http://192.168.33.10"
+
+FS_HOST="192.168.33.10"
+FS_PORT=8083
 
 #微信第三方平台的appid
 WX_COMPONENT_APPID = "wx8ec7ea1fab1fbbf2"

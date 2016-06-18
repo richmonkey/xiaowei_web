@@ -210,6 +210,26 @@ class WXMPAPI(object):
         result = r.json()
         return result
 
+    def request_media(self, url='', method='get', params=None, data=None, files=None, flag=False, baseurl=MP_URL, headers=None, stream=False):
+        """
+        请求API接口，带access_token
+        """
+        if headers is None and not files:
+            headers = {}
+            headers['content-type'] = 'application/json; charset=utf-8'
+
+        _params = params
+        if not _params:
+            _params = {}
+        _params['access_token'] = self.token
+
+        _data = data
+        if _data:
+            _data = json.dumps(_data, ensure_ascii=False).encode('utf-8')
+
+        r = getattr(requests, method)(baseurl + url, headers=headers, params=_params, data=_data, files=files, stream=stream)
+        return r.content
+    
     @staticmethod
     def get_qrcode(ticket):
         """
@@ -302,7 +322,7 @@ class WXMPAPI(object):
         return result
 
     def get_media(self, media_id):
-        result = self.request(url='/media/get', headers={}, params={
+        result = self.request_media(url='/media/get', headers={}, params={
             'media_id': media_id
         })
         return result
@@ -345,6 +365,14 @@ class WXMPAPI2(WXMPAPI):
         socks.set_default_proxy(socks.SOCKS5, "127.0.0.1", 7778)
         socket.socket = socks.socksocket
         r = super(WXMPAPI2, self).get_user_by_openid(openid)
+        socket.socket = default_socket
+        return r
+
+    def get_media(self, media_id):
+        default_socket = socket.socket
+        socks.set_default_proxy(socks.SOCKS5, "127.0.0.1", 7778)
+        socket.socket = socks.socksocket
+        r = super(WXMPAPI2, self).get_media(media_id)
         socket.socket = default_socket
         return r
 

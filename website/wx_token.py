@@ -147,6 +147,7 @@ def get_user(rds, db, gh_id, openid):
         u.gh_id = gh_id
         u.openid = openid
         u.appid = wx['appid']
+        u.wx_appid = wx['wx_app_id']
         u.uid = uid
         u.store_id = store_id
         u.timestamp = now

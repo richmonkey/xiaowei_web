@@ -16,7 +16,7 @@ from utils.parse import Parse
 from utils.reply import Reply
 from utils.WXBizMsgCrypt import WXBizMsgCrypt
 from utils.func import random_ascii_string
-
+from utils.fs import FS
 import config
 
 if config.DEBUG:
@@ -32,6 +32,9 @@ import logging
 import sys
 import time
 import json
+import md5
+import struct
+import math
 import requests
 
 from models import Seller
@@ -310,6 +313,30 @@ def wx_message():
 
     return 'success'
 
+def amr_duration(body):
+    packed_size = [12, 13, 15, 17, 19, 20, 26, 31, 5, 0, 0, 0, 0, 0, 0, 0]
+    duration = -1
+    length = len(body)
+    pos = 6
+    frame_count = 0
+    packed_pos = -1
+     
+    if length == 0:
+        return 0
+
+    while pos <= length:
+        if pos == length:
+            duration = (length-6)/650
+            break
+        t, = struct.unpack("!B", body[pos])
+        packed_pos = (t >> 3) & 0x0F
+        pos += packed_size[packed_pos] + 1
+        frame_count += 1
+     
+    duration += frame_count*20
+    duration = math.ceil(duration/1000.0)
+    return duration
+
 
 @root.route('/wx/<wx_appid>/callback', methods=['POST'])
 def receive(wx_appid):
@@ -347,8 +374,9 @@ def receive(wx_appid):
 
         # 消息格式检查
         if msg_type not in ('text', 'image', 'voice', 'location'):
-            print "该消息格式不支持, 目前只支持文本,图片或者语"
-            return Reply.text(openid, gh_id, '该消息格式不支持, 目前只支持文本,图片或者语音')
+            msg = Reply.text(openid, gh_id, '该消息格式不支持, 目前只支持文本,图片,语音,位置')
+            _, m = wx_crypt.EncryptMsg(msg, nonce, timestamp)
+            return m
 
         logging.debug("msg:%s %s %s", openid, gh_id, msg_type)
 
@@ -358,19 +386,57 @@ def receive(wx_appid):
             content = data.get('Content')
             logging.debug("text content:%s", content)
             obj = {"text":content}
-            c = json.dumps(obj)
-            seller_id = send_customer_message(u.appid, u.uid, u.store_id, u.seller_id, c)
-            if seller_id != u.seller_id:
-                WXUser.set_seller_id(rds, gh_id, openid, seller_id)
         elif msg_type == 'location':
             x = data.get("Location_X")
             y = data.get("Location_Y")
             obj = {"location":{"latitude":x, "longitude":y}}
+        elif msg_type == 'image':
+            access_token = get_access_token(rds, db, u.wx_appid)
+            if not access_token:
+                logging.error("can't get access token")
+                return ''
+
+            mp = WXMPAPI(access_token)
+            media = mp.get_media(data.get("MediaId"))
+
+            ext = ".jpg"
+            name = md5.new(media).hexdigest()
+            path = "/images/" + name + ext
+            r = FS.upload(path, media)
+            if not r:
+                logging.error("fs upload image error")
+                return ''
+
+            url = config.IM_URL + "/images/" + name + ext
+            obj = {"image":url}
+        elif msg_type == 'voice':
+            access_token = get_access_token(rds, db, u.wx_appid)
+            if not access_token:
+                logging.error("can't get access token")
+                return ''
+
+            mp = WXMPAPI(access_token)
+            media = mp.get_media(data.get("MediaId"))
+
+            md5_value = md5.new(media).hexdigest()
+            path = "/audios/" + md5_value
+            r = FS.upload(path, media)
+            if not r:
+                logging.error("fs upload audio error")
+                return ''
+
+            duration = amr_duration(media)
+            url = config.IM_URL + "/audios/" + md5_value
+            obj = {"audio":{"url":url, "duration":duration}}
+        else:
+            logging.debug("unsupport msg type:%s", msg_type)
+            obj = None
+
+        if obj:
             c = json.dumps(obj)
+            logging.debug("message content:%s", c)
             seller_id = send_customer_message(u.appid, u.uid, u.store_id, u.seller_id, c)
             if seller_id != u.seller_id:
                 WXUser.set_seller_id(rds, gh_id, openid, seller_id)
-        else:
-            logging.debug("unsupport msg type:%s", msg_type)
 
     return ''

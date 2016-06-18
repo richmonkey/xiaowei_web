@@ -14,6 +14,7 @@ from utils.response_meta import ResponseMeta
 from utils.request import Request
 from utils.func import init_logger
 from utils.mysql import Mysql
+from utils.fs import FS
 from config import APP_MODE
 from config import MYSQL
 
@@ -23,6 +24,10 @@ import config
 
 app = Flask(__name__)
 app.config.from_object(config)
+
+
+FS.HOST = config.FS_HOST
+FS.PORT = config.FS_PORT
 
 
 LOGGER = init_logger(__name__)

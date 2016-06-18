@@ -56,6 +56,7 @@ class WXUser(object):
         #gobelieve平台的appid
         self.appid = 0
         self.uid = 0
+        self.wx_appid = ""
         self.store_id = 0
         self.seller_id = 0
 
@@ -69,7 +70,7 @@ class WXUser(object):
         key = "wx_users_%s_%s"%(gh_id, openid)
         logging.debug("wx user key:%s", key)
 
-        appid, uid, store_id, seller_id, timestamp = rds.hmget(key, "appid", "uid", "store_id", "seller_id", 'timestamp')
+        appid, uid, wx_appid, store_id, seller_id, timestamp = rds.hmget(key, "appid", "uid", "wx_appid", "store_id", "seller_id", 'timestamp')
 
         if not appid or not uid or not store_id:
             return None
@@ -78,6 +79,7 @@ class WXUser(object):
         u.openid = openid
         u.appid = int(appid)
         u.uid = int(uid)
+        u.wx_appid = wx_appid
         u.store_id = int(store_id)
         u.seller_id = int(seller_id) if seller_id else 0
         u.timestamp = int(timestamp) if timestamp else 0
@@ -90,6 +92,7 @@ class WXUser(object):
         obj = {
             "appid":u.appid,
             "uid":u.uid,
+            "wx_appid":u.wx_appid,
             "store_id":u.store_id,
             "seller_id":u.seller_id,
             'timestamp':u.timestamp
