@@ -36,19 +36,6 @@ class App(object):
 
         db.execute("DELETE FROM app WHERE id=%s AND developer_id=%s", 
                    (appid, developer_id))
-
-
-    @classmethod
-    def get_wx(cls, db, gh_id):
-        sql = "SELECT app.id as id, app.name as name, app.developer_id as developer_id FROM client_wx, client, app WHERE gh_id=%s and client_wx.client_id=client.id and client.app_id=app.id"
-        r = db.execute(sql, gh_id)
-        obj = r.fetchone()
-        wx = WXApp()
-        wx.gh_id = gh_id
-        wx.appid = obj['id']
-        wx.name = obj['name']
-        wx.developer_id = obj['developer_id']
-        return wx
      
     @classmethod
     def create_wx(cls, db, name, gh_id, wx_appid, refresh_token, store_id):
@@ -79,7 +66,7 @@ class App(object):
 
     @classmethod
     def get_wx(cls, db, wx_appid):
-        sql = "SELECT app.id as appid, app.name as name, app.developer_id as developer_id, app.store_id as store_id, client_wx.client_id as client_id, client_wx.gh_id as gh_id, client_wx.wx_app_id as wx_app_id, client_wx.refresh_token as refresh_token, client_wx.is_authorized as is_authorized FROM app, client, client_wx WHERE client_wx.wx_app_id=%s AND client_wx.client_id=client.id AND client.app_id=app.id"
+        sql = "SELECT app.id as id, app.name as name, app.developer_id as developer_id, app.store_id as store_id, client_wx.client_id as client_id, client_wx.gh_id as gh_id, client_wx.wx_app_id as wx_app_id, client_wx.refresh_token as refresh_token, client_wx.is_authorized as is_authorized FROM app, client, client_wx WHERE client_wx.wx_app_id=%s AND client_wx.client_id=client.id AND client.app_id=app.id"
         r = db.execute(sql, wx_appid)
         return r.fetchone()
 
