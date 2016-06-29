@@ -70,10 +70,6 @@ def gen_pre_auth_code(rds):
     
     pre_auth_code = r['pre_auth_code']
     expires = r['expires_in']
-    #提前5分钟过期
-    if expires > 10*60:
-        expires = expires - 5*60
-    WX.set_pre_auth_code(rds, pre_auth_code, expires)
     logging.debug("request pre auth code:%s expires:%s", 
                   pre_auth_code, r['expires_in'])
     

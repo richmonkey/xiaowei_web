@@ -87,11 +87,9 @@ def check_signature(signature, timestamp, nonce):
 def test_auth():
     rds = g.im_rds
     db = g._db
-    pre_auth_code = WX.get_pre_auth_code(rds)
+    pre_auth_code = gen_pre_auth_code(rds)
     if not pre_auth_code:
-        pre_auth_code = gen_pre_auth_code(rds)
-        if not pre_auth_code:
-            return "error"
+        return "error"
 
     seller_id = 100088
     redirect_uri = url_for(".auth_callback", uid=seller_id, _external=True)
@@ -103,11 +101,9 @@ def test_auth():
 def auth():
     rds = g.im_rds
     db = g._db
-    pre_auth_code = WX.get_pre_auth_code(rds)
+    pre_auth_code = gen_pre_auth_code(rds)
     if not pre_auth_code:
-        pre_auth_code = gen_pre_auth_code(rds)
-        if not pre_auth_code:
-            return "error"
+        return "error"
 
     seller_id = session['user']['id']
     redirect_uri = url_for(".auth_callback", uid=seller_id, _external=True)
@@ -263,9 +259,6 @@ def handle_ticket(data):
                   appid, create_time, ticket)
 
     WX.set_ticket(rds, ticket)
-    pre_auth_code = WX.get_pre_auth_code(rds)
-    if not pre_auth_code:
-        gen_pre_auth_code(rds)
 
 
 @root.route("/wx/test", methods=['GET'])

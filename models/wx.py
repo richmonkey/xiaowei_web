@@ -27,17 +27,6 @@ class WX(object):
         return rds.get(key)
 
     @classmethod
-    def set_pre_auth_code(cls, rds, pre_auth_code, expires):
-        key = "component_pre_auth_code"
-        rds.set(key, pre_auth_code)
-        rds.expire(key, expires)
-
-    @classmethod
-    def get_pre_auth_code(cls, rds):
-        key = "component_pre_auth_code"
-        return rds.get(key)
-
-    @classmethod
     def set_ticket(cls, rds, ticket):
         key = "component_ticket"
         rds.set(key, ticket)
