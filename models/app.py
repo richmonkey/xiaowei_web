@@ -59,6 +59,23 @@ class App(object):
         return appid
 
     @classmethod
+    def delete_app(cls, db, appid):
+        db.begin()
+        sql = "DELETE client, client_wx FROM app, client, client_wx WHERE app.id=%s AND app.id=client.app_id AND client.id=client_wx.client_id"
+        db.execute(sql, appid)
+
+        sql = "DELETE client, client_apns FROM app, client, client_apns WHERE app.id=%s AND app.id=client.app_id AND client.id=client_apns.client_id"
+        db.execute(sql, appid)
+
+        sql = "DELETE client, client_certificate FROM app, client, client_certificate WHERE app.id=%s AND app.id=client.app_id AND client.id=client_certificate.client_id"
+        db.execute(sql, appid)
+
+        sql = "DELETE FROM app WHERE app.id=%s"
+        db.execute(sql, appid)
+
+        db.commit()
+
+    @classmethod
     def get_wx_app(cls, db, appid):
         sql = "SELECT app.id as id, app.name as name FROM app, client, client_wx WHERE app.id=%s AND client.app_id=app.id AND client.id=client_wx.client_id"
         r = db.execute(sql, appid)
