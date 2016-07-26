@@ -6,6 +6,11 @@ class Question(object):
         r = db.execute(sql, (question, answer, store_id))
         return r.lastrowid
 
+    @classmethod
+    def delete(self, db, qid):
+        sql = "DELETE FROM `question` WHERE question.id=%s"
+        db.execute(sql, qid)
+        return
 
     @classmethod
     def get_question_count(cls, db, store_id):
