@@ -79,7 +79,7 @@ def wx_delete():
 
     """
     _id = request.form.get('id')
-    App.delete_app(_id)
+    App.delete_app(g._db, _id)
     return ''
 
 
