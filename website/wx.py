@@ -21,7 +21,8 @@ import config
 
 wx = Blueprint('wx', __name__, template_folder='templates', static_folder='static')
 
-def make_response(status_code, data = None):
+
+def make_response(status_code, data=None):
     if data:
         res = flask.make_response(json.dumps(data), status_code)
         res.headers['Content-Type'] = "application/json"
@@ -31,15 +32,14 @@ def make_response(status_code, data = None):
     return res
 
 
-
 def INVALID_PARAM():
-    e = {"error":"非法输入"}
+    e = {"error": "非法输入"}
     logging.warn("非法输入")
     return make_response(400, e)
 
+
 def _im_login_required(f):
     return login_required(f, redirect_url_for='.wx_index')
-
 
 
 @wx.before_request
@@ -72,6 +72,17 @@ def wx_add():
     return redirect(url_for("message.auth"))
 
 
+@wx.route('/wx', methods=['DELETE'])
+@_im_login_required
+def wx_delete():
+    """
+
+    """
+    _id = request.form.get('id')
+    App.delete_app(_id)
+    return ''
+
+
 @wx.route('/wx/detail/<int:appid>')
 @_im_login_required
 def wx_detail(appid):
@@ -83,4 +94,3 @@ def wx_detail(appid):
     app = App.get_wx_app(db, appid)
 
     return render_template('wx/detail.html', data={'info': app})
-

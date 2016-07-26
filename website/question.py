@@ -14,11 +14,12 @@ from models import Question
 question = Blueprint('question', __name__, template_folder='templates', static_folder='static')
 rpc = xmlrpclib.ServerProxy(config.RPC)
 
+
 def _im_login_required(f):
     return login_required(f, redirect_url_for='wx.wx_index')
 
 
-@question.route("/question", methods = ["GET"])
+@question.route("/question", methods=["GET"])
 @_im_login_required
 def question_index():
     db = g._imdb
@@ -44,8 +45,7 @@ def question_index():
                                  })
 
 
-
-@question.route("/question", methods = ["POST"])
+@question.route("/question", methods=["POST"])
 @_im_login_required
 def question_post():
     q = request.form.get('question', '')
@@ -58,7 +58,7 @@ def question_post():
 
     qid = Question.add(g._db, q, a, store_id)
 
-    #更新robotd的问题库
+    # 更新robotd的问题库
     try:
         rpc.refresh_questions()
     except xmlrpclib.ProtocolError as err:
@@ -69,11 +69,18 @@ def question_post():
     return redirect(url_for('.question_index'))
 
 
-@question.route("/question/add", methods = ["GET"])
+@question.route("/question/add", methods=["GET"])
 @_im_login_required
 def question_add():
     uid = session['user']['id']
     store_id = session['user']['store_id']
 
-    return render_template('question/question_add.html', data={"store_id":store_id})
+    return render_template('question/question_add.html', data={"store_id": store_id})
 
+
+@question.route("/question", methods=["DELETE"])
+@_im_login_required
+def question_delete():
+    _id = request.form.get('id')
+    print _id
+    return ''

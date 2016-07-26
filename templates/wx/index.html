@@ -1,50 +1,98 @@
 {% extends "layout/im.html" %}
 
 {% block body %}
-  <div class="container">
-    <div class="breadcrumb">
-      <div class="inner-wrapper">
-        <ol>
-          <li class="active">
-          </li>
-        </ol>
-      </div>
-    </div>
-    <div class="inner-wrapper">
-      <div class="one-wrapper">
-        <div class="panel">
-          <div class="opt-bar clearfix">
-            <a href="/wx/add" class="rt btn-s btn-success" data-action="redirect">添加公众号</a>
-          </div>
-          <div class="game-table">
-            <table>
-              <tr>
-                <th><span>公众号名称</span></th>
-                <th><span>授权</span></th>
-              </tr>
-              {% for item in data.list %}
-                <tr>
-                  <td>
-                    <a href="/wx/detail/{{item.id}}">{{item.name}}</a>
-                  </td>
-                  <td>
+    <style>
+        .btn-delete {
+            color: #fff;
+            background-color: #ed5c5c;
+            border: 1px solid #ed5c5c;
+            border-radius: 2px;
+            display: inline-block;
+            margin-bottom: 0;
+            font-weight: 400;
+            text-align: center;
+            vertical-align: middle;
+            cursor: pointer;
+            background-image: none;
+            white-space: nowrap;
+        }
+    </style>
+    <div class="container">
+        <div class="breadcrumb">
+            <div class="inner-wrapper">
+                <ol>
+                    <li class="active">
+                    </li>
+                </ol>
+            </div>
+        </div>
+        <div class="inner-wrapper">
+            <div class="one-wrapper">
+                <div class="panel">
+                    <div class="opt-bar clearfix">
+                        <a href="/wx/add" class="rt btn-s btn-success" data-action="redirect">添加公众号</a>
+                    </div>
+                    <div class="game-table">
+                        <table>
+                            <tr>
+                                <th><span>公众号名称</span></th>
+                                <th><span>授权</span></th>
+                                <th><span>操作</span></th>
+                            </tr>
+                            {% for item in data.list %}
+                                <tr>
+                                    <td>
+                                        <a href="/wx/detail/{{ item.id }}">{{ item.name }}</a>
+                                    </td>
+                                    <td>
                     <span>
                     {{ "已授权" if item.is_authorized else "未授权" }}
                     </span>
-                  </td>
-                </tr>
-              {% else %}
-                <tr>
-                  <td colspan="5"><div class="none-data">无数据</div></td>
-                </tr>
-              {% endfor %}
-            </table>
-          </div>
+                                    </td>
+                                    <td>
+                                        <input data-is_authorized="{{ is_authorized }}" type="button"
+                                               class="btn-2 btn-delete"
+                                               data-id="{{ item.id }}"
+                                               value="删除"/>
+
+                                    </td>
+                                </tr>
+                            {% else %}
+                                <tr>
+                                    <td colspan="3">
+                                        <div class="none-data">无数据</div>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </table>
+                    </div>
+                </div>
+            </div>
         </div>
-      </div>
     </div>
-  </div>
 {% endblock %}
 {% block script %}
-  <script>seajs.use('dist/app/im/index/index');</script>
+    <script src="{{ url_for('web.static', filename='js/website/lib/jquery.min.js',_external=true) }}"></script>
+    <script>
+        seajs.use('dist/app/im/index/index');
+        $('.btn-delete').on('click', function () {
+            var is_authorized = $(this).attr('data-is_authorized');
+            if (is_authorized == '0') {
+                if (confirm('确认删除?')) {
+                    $.ajax({
+                                method: "DELETE",
+                                url: "{{ url_for('wx.wx_delete') }}",
+                                data: {id: $(this).attr('data-id')}
+                            })
+                            .done(function (msg) {
+                                location.reload();
+                            });
+                }
+            } else {
+                alert('请先到公众号后台管理取消授权后再删除!');
+            }
+        });
+    </script>
+    <script>seajs.use('dist/app/im/index/index');</script>
+
 {% endblock %}

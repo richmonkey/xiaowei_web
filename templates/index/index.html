@@ -1,50 +1,28 @@
 {% extends "index/base.html" %}
 
 {% block body %}
-    <style>
-        .wrap {
-            text-align: center;
-            padding: 150px 0
-        }
-
-        .download-wrap img {
-            width: 240px;
-        }
-
-        .hide {
-            display: none;
-        }
-    </style>
     <div class="container contact">
-        <div class="head-tip">
-            <div class="row">
-                <div class="col-md-5  hidden-sm hidden-xs"><span class="line"></span></div>
-                <div class="col-md-2  col-sm-2 ">狗不理客服</div>
-                <div class="col-md-5  hidden-sm hidden-xs"><span class="line"></span></div>
+        <h1 class="logo"><img
+                src="{{ url_for('web.static', filename='themes/default/images/logo.png',_external=True) }}" alt="小微客服"/><span>小微客服</span>
+        </h1>
+        <div class="desc">好一点,会好很多</div>
+        <div class="content">
+            <p>手机管理多个公众号<br/>
+                粉丝留言不再错过</p>
+            <img src="{{ url_for('web.static', filename='themes/default/images/phone_bg.png',_external=True) }}"
+                 alt="手机管理多个公众号,粉丝留言不再错过"/>
+        </div>
+        <div class="footer-wrap">
+            <p>完全免费,极速配置</p>
+            <div class="btn-wrap">
+                <a class="btn" href="{{ url_for('wx.wx_index',_external=true) }}">登录</a>
+                <a class="btn" href="{{ url_for('account.user_register',_external=true) }}">注册</a>
             </div>
         </div>
-        <div class="container">
-            <div class="body">
-                <h1 style="text-align: center">
-                    让你的每一位顾客都满意
-                </h1>
-            </div>
-        </div>
-    </div>
-    <script>
-        (function ($) {
-            var toggle = $('.toggle');
-            toggle.on('mouseenter', function () {
-                var _this = $(this);
-                _this.addClass('active').siblings('.toggle').removeClass('active');
-            });
-            $(document).on('click', function (e) {
-                var tar = $(e.target);
-                if (!tar.hasClass('btn-gray')) {
-                    toggle.removeClass('active');
-                }
-            })
 
-        }(jQuery));
+    </div>
+{% endblock %}
+{% block script %}
+    <script>
     </script>
 {% endblock %}

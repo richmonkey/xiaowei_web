@@ -1,51 +1,31 @@
 {% extends "layout/im.html" %}
 
 {% block breadcrumb %}
-  <div class="breadcrumb">
-    <div class="inner-wrapper">
-      <ol>
-        <li>
-          <a href="/wx">微信公众号列表</a>
-        </li>
-        <li class="arrow"><span>&gt;</span></li>
-        <li class="active">
-          <input name="" type="hidden" id="store_name_id" value="{{ data.info.name }}"/>
-          <span id="store_name">{{data.info.name}}</span>
-        </li>
-      </ol>
+    <div class="breadcrumb">
+        <div class="inner-wrapper">
+            <ol>
+                <li>
+                    <a href="/wx">微信公众号列表</a>
+                </li>
+                <li class="arrow"><span>&gt;</span></li>
+                <li class="active">
+                    <input name="" type="hidden" id="store_name_id" value="{{ data.info.name }}"/>
+                    <span id="store_name">{{ data.info.name }}</span>
+                </li>
+            </ol>
+        </div>
     </div>
-  </div>
 {% endblock %}
-
-{% block sidebar %}
-  <div class="sidebar-inner">
-    <div class="panel selected">
-      <ul>
-        <li class="submenu expanded" data-action="toggleSubtitle">
-          <div class="subtitle">
-            <b class="caret caret-down hide"></b><b class="caret-up"></b>
-            <span>商店信息</span> </div>
-          <ul class="sub-ul">
-            <li {% if g.uri_path.startswith('/wx/detail/') %} class="actived" {%endif%}>
-              <a href="/wx/detail/{{data.info.id}}">商店详情</a>
-            </li>
-          </ul>
-        </li>
-      </ul>
-    </div>
-  </div>
-{% endblock %}
-
 {% block body %}
-  <div class="container data-container">
-    {{ self.breadcrumb() }}
-    <div class="inner-wrapper">
-      <div class="sidebar">
-        {{ self.sidebar() }}
-      </div>
-      <div class="content">
-        {% block content %}{% endblock %}
-      </div>
+    <div class="container data-container">
+        {{ self.breadcrumb() }}
+        <div class="inner-wrapper">
+            <div class="sidebar">
+                {{ self.sidebar() }}
+            </div>
+            <div class="content">
+                {% block content %}{% endblock %}
+            </div>
+        </div>
     </div>
-  </div>
 {% endblock %}

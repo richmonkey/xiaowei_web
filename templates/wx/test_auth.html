@@ -10,7 +10,7 @@
 <body>
     <div class="header">
       <div class="inner-wrapper">
-          <div class="logo"><a href="{{ url_for('web.index') }}">GoBelieve开发者中心</a></div>
+          <div class="logo"><a href="{{ url_for('web.index') }}">小微客服</a></div>
         
       </div>
     </div>
@@ -28,13 +28,10 @@
       <div class="one-wrapper">
         <div class="panel">
             <div class="desc-wrapper">
-                <h3>微信公众账号需授予智齿客服以下权限：</h3>
+                <h3>微信公众账号需授予小微客服以下权限：</h3>
                 <ul>
                     <li>消息与菜单权限集</li>
                     <li>用户管理权限集</li>
-                    <li>帐号管理权限集</li>
-                    <li>网页授权权限集</li>
-                    <li>业务通知权限集</li>
                 </ul>
                 <div class="btn-bar">
                     <a href="https://mp.weixin.qq.com/cgi-bin/componentloginpage?component_appid={{ appid }}&pre_auth_code={{ pre_auth_code }}&redirect_uri={{ redirect_uri }}" class="btn-i btn-primary mr-5" target="_blank">微信公众号登录授权</a>
