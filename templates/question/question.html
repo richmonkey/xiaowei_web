@@ -81,16 +81,12 @@
 
                         <table>
                             <tr>
-                                <th width="120"><span>ID</span></th>
                                 <th><span>问题</span></th>
                                 <th width="120"><span>操作</span></th>
                             </tr>
 
                             {% for item in data.list %}
                                 <tr>
-                                    <td>
-                                        {{ item.id }}
-                                    </td>
                                     <td>
                                         <a href="#" data-answer="{{ item.answer }}"
                                            class="overflow-hide question">{{ item.question }}</a>
