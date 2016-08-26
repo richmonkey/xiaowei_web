@@ -10,7 +10,7 @@
                             alt="小微客服"/>&nbsp;&nbsp;小微客服</a></div>
                     <div class="col-md-8">
                         <div class="menu">
-{#                            <a href="#header">首页</a>#}
+                            {#                            <a href="#header">首页</a>#}
                             <a href="#header">介绍</a>
                             <a href="#use">使用</a>
                             <a href="{{ url_for('wx.wx_index',_external=true) }}">登录</a>
@@ -26,8 +26,8 @@
                 <div class="container">
                     <div class="row">
                         <div class="col-md-12 feature">
-                            <h1>手机管理多个公众号, 粉丝留言不再错过</h1>
-                            <p>完全免费,极速配置</p>
+                            <h1>一秒钟回复公众号留言,不再让你的粉丝等待</h1>
+                            <p>完全免费,多个公众号,智能回复,极速配置置</p>
                             <div class="btn-wrap">
                                 <a href="{{ url_for('account.user_register',_external=true) }}">立即注册</a>
                             </div>
@@ -42,36 +42,40 @@
                 <div class="row">
                     <div class="col-md-4">
                         <div class="step">
-                            <img src="{{ url_for('web.static', filename='themes/default/images/xw_user.png',_external=True) }}" alt="">
+                            <img src="{{ url_for('web.static', filename='themes/default/images/xw_user.png',_external=True) }}"
+                                 alt="">
                             <div class="desc-wrap">
                                 <p class="s">第一步</p>
-                                <h3>使用email注册用户</h3>
+                                <h3>注册用户</h3>
                                 <p class="desc">
-                                    描述文案
+                                    使用email注册
                                 </p>
                             </div>
                         </div>
                     </div>
                     <div class="col-md-4">
                         <div class="step">
-                            <img src="{{ url_for('web.static', filename='themes/default/images/xw_wx.png',_external=True) }}" alt="">
+                            <img src="{{ url_for('web.static', filename='themes/default/images/xw_wx.png',_external=True) }}"
+                                 alt="">
                             <div class="desc-wrap">
                                 <p class="s">第二步</p>
                                 <h3>添加公众号</h3>
                                 <p class="desc">
-                                    描述文案
+                                    1、消息与菜单权限集<br/>
+                                    2、用户管理权限
                                 </p>
                             </div>
                         </div>
                     </div>
                     <div class="col-md-4">
                         <div class="step">
-                            <img src="{{ url_for('web.static', filename='themes/default/images/xw_qrcode.png',_external=True) }}" alt="">
+                            <img src="{{ url_for('web.static', filename='themes/default/images/xw_qrcode.png',_external=True) }}"
+                                 alt="">
                             <div class="desc-wrap">
                                 <p class="s">第三步</p>
                                 <h3>扫二维码下载小微客服</h3>
                                 <p class="desc">
-                                    描述文案
+                                    未认证公众号无法回复消息,<br/>只能接收消息
                                 </p>
                             </div>
                         </div>

@@ -5654,6 +5654,8 @@ body {
     .xw-home .header .logo img {
       width: 60px;
       vertical-align: middle; }
+    .xw-home .header .logo:hover {
+      text-decoration: none; }
   .xw-home .header .menu {
     text-align: right; }
     .xw-home .header .menu a {
@@ -5689,7 +5691,7 @@ body {
   font-size: 42px;
   line-height: 1.5; }
 .xw-home .feature p {
-  font-size: 18px; }
+  font-size: 28px; }
 .xw-home .feature .btn-wrap {
   padding-top: 20px; }
   .xw-home .feature .btn-wrap a {

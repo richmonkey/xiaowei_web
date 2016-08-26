@@ -1,7 +1,7 @@
 // frame
 //----------------------------------------------------- 
 $headerHeight: 64px !default;
-$headerBackground: #3a76d1 !default;
+$headerBackground: #00a5d9 !default;
 
 // hd-nav
 //----------------------------------------------------- 
@@ -24,8 +24,12 @@ body {
     background-color: $headerBackground;
     .logo, .im-logo, .common-logo, .push-dev-logo {
         float: left;
+        img{
+          width: 60px;
+          vertical-align: middle;
+        }
         a {
-            font-size: 32px;
+            font-size: 20px;
             line-height: 64px;
             font-weight: 400;
             color: #fff;

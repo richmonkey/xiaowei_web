@@ -1101,11 +1101,14 @@ body {
 
 .header {
   height: 64px;
-  background-color: #3a76d1; }
+  background-color: #00a5d9; }
   .header .logo, .header .im-logo, .header .common-logo, .header .push-dev-logo {
     float: left; }
+    .header .logo img, .header .im-logo img, .header .common-logo img, .header .push-dev-logo img {
+      width: 60px;
+      vertical-align: middle; }
     .header .logo a, .header .im-logo a, .header .common-logo a, .header .push-dev-logo a {
-      font-size: 32px;
+      font-size: 20px;
       line-height: 64px;
       font-weight: 400;
       color: #fff; }
