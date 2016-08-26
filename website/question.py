@@ -82,5 +82,13 @@ def question_add():
 @_im_login_required
 def question_delete():
     _id = request.form.get('id')
-    print _id
+    Question.delete(g._db, _id)
+    # 更新robotd的问题库
+    try:
+        rpc.refresh_questions()
+    except xmlrpclib.ProtocolError as err:
+        logging.warning("refresh questions err:%s", err)
+    except Exception as err:
+        logging.warning("refresh questions err:%s", err)
+
     return ''
