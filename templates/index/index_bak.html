@@ -1,0 +1,28 @@
+{% extends "index/base.html" %}
+
+{% block body %}
+    <div class="container contact">
+        <h1 class="logo"><img
+                src="{{ url_for('web.static', filename='themes/default/images/logo.png',_external=True) }}" alt="小微客服"/><span>小微客服</span>
+        </h1>
+        <div class="desc">好一点,会好很多</div>
+        <div class="content">
+            <p>手机管理多个公众号<br/>
+                粉丝留言不再错过</p>
+            <img src="{{ url_for('web.static', filename='themes/default/images/phone_bg.png',_external=True) }}"
+                 alt="手机管理多个公众号,粉丝留言不再错过"/>
+        </div>
+        <div class="footer-wrap">
+            <p>完全免费,极速配置</p>
+            <div class="btn-wrap">
+                <a class="btn" href="{{ url_for('wx.wx_index',_external=true) }}">登录</a>
+                <a class="btn" href="{{ url_for('account.user_register',_external=true) }}">注册</a>
+            </div>
+        </div>
+
+    </div>
+{% endblock %}
+{% block script %}
+    <script>
+    </script>
+{% endblock %}
