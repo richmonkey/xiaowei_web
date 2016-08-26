@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
-from flask import Blueprint, render_template,request, send_from_directory, redirect, url_for, g
-import os,time
+from flask import Blueprint, render_template, request, send_from_directory, redirect, url_for, g
+import os, time
 from utils.func import init_logger
-from config import APP_MODE,APP_ID,APP_SECRET
+from config import APP_MODE, APP_ID, APP_SECRET
 import requests
 from utils.wx_sign import Sign
 
@@ -69,6 +69,16 @@ def index():
     sign = get_weixin_sign()
     g.uri_path = '/'
     return render_template('index/index.html', sign=sign)
+
+
+@web.route('/download')
+def download():
+    from flask import request
+    ua = request.headers.get('user_agent')
+    if ua.find('iPhone') > 0:
+        return redirect('https://itunes.apple.com/cn/app/xiao-wei-ke-fu/id1124035038?mt=8')
+    else:
+        return redirect('http://shouji.baidu.com/software/9513676.html')
 
 
 @web.route('/contact')
