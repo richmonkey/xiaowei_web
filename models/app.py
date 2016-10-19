@@ -171,3 +171,10 @@ class App(object):
         sql = "UPDATE app SET store_id=%s WHERE id=%s"
         r = db.execute(sql, (store_id, appid))
         return r.rowcount
+
+    @classmethod
+    def get_store_id(cls, db, appid):
+        sql = "SELECT store_id FROM app WHERE app.id=%s"
+        r = db.execute(sql, appid)
+        app = r.fetchone()
+        return app["store_id"]
