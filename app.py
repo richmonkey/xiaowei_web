@@ -22,6 +22,8 @@ import config
 
 app = Flask(__name__)
 app.config.from_object(config)
+if hasattr(config, "APP_SESSION_COOKIE_DOMAIN"):
+    app.config["SESSION_COOKIE_DOMAIN"] = config.APP_SESSION_COOKIE_DOMAIN
 
 rds = redis.StrictRedis(host=config.REDIS_HOST, 
                          port=config.REDIS_PORT, 
