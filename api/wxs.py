@@ -7,6 +7,7 @@ from models import App
 
 from blueprint import api
 from .blueprint_utils import make_response
+from exception import MainException
 
 
 @api.route('/wx')
@@ -22,7 +23,7 @@ def wx_index():
     db = g._imdb
     wxs = App.get_wxs(db, store_id)
 
-    return make_response(200, {'list': wxs})
+    return make_response(200, wxs)
 
 
 @api.route('/wx/<int:appid>', methods=['DELETE'])
@@ -32,7 +33,7 @@ def wx_delete(appid):
 
     """
     App.delete_app(g._db, appid)
-    return make_response(200)
+    return MainException.OK
 
 
 @api.route('/wx/<int:appid>')

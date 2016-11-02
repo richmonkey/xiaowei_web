@@ -53,11 +53,11 @@ print r.content
 
 url = URL + "/apps"
 r = requests.get(url)
-print r.status_code
+print r.status_code, r.content
 result = json.loads(r.content)
 
 if result:
-    app_id = result[0]['id']
+    app_id = 7
 
     url = URL + "/apps/{}".format(app_id)
     r = requests.get(url)

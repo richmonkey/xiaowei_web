@@ -131,17 +131,15 @@ class App(object):
         r = db.execute(sql, appid)
         ios_client = r.fetchone()
 
-        app['clients'] = []
-        if app and android_client:
-            app['android'] = android_client
-            c = copy.deepcopy(android_client)
-            android_client['certificate'] = c
-            app['clients'].append(android_client)
-        if app and ios_client:
-            app['ios'] = ios_client
-            c = copy.deepcopy(ios_client)
-            ios_client['apns'] = c
-            app['clients'].append(ios_client)
+        if app:
+            if android_client:
+                app['android'] = android_client
+            else:
+                app['android'] = {}
+            if ios_client:
+                app['ios'] = ios_client
+            else:
+                app['ios'] = {}
 
         return app
 

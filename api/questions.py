@@ -36,9 +36,12 @@ def question_index():
     return make_response(
         200,
         data={
-            'offset': offset,
-            'limit': limit,
-            'list': questions,
+            'pagination': {
+                'offset': offset,
+                'limit': limit,
+                'rows_found': rows_found,
+            },
+            'data': questions,
         }
     )
 
@@ -79,4 +82,4 @@ def question_delete(question_id):
     except Exception as err:
         logging.warning("refresh questions err:%s", err)
 
-    return make_response(200)
+    return MainException.OK

@@ -67,6 +67,7 @@ def verify_mail():
     """
     email = request.form.get('email', '')
     password = request.form.get('password', '')
+    email_cb = request.form.get('email_cb')
     password = generate_password_hash(password)
 
     account_obj = _get_account_by_email(g._db, email)
@@ -93,7 +94,7 @@ def verify_mail():
         "email_checked": 0,
     }
 
-    send_verify_email(email, code, email_cb=url_for('account.register_valid', code='', _external=True))
+    send_verify_email(email, code, email_cb=email_cb)
 
     return send_response(account)
 
@@ -103,6 +104,7 @@ def user_verify_email():
     """
     """
     email = request.form.get('email', '')
+    email_cb = request.form.get('email_cb')
     account_obj = Account.get_account_with_email(g._db, email)
     if not account_obj:
         raise MainException.ACCOUNT_NOT_FOUND
@@ -113,13 +115,13 @@ def user_verify_email():
     code = random_ascii_string(40)
     email = account_obj.get('email')
 
-    send_verify_email(email, code, url_for('account.register_valid', code='', _external=True))
+    send_verify_email(email, code, email_cb)
     Account.insert_verify_email(g._db, email, code, EmailUsageType.SELLER_VERIFY, account_obj.get('id'))
 
     return MainException.OK
 
 
-@api.route('/user/valid', methods=['POST'])
+@api.route('/user/verify', methods=['POST'])
 def register_valid():
     code = request.form.get('code', '')
 
@@ -146,7 +148,7 @@ def register_valid():
         Account.delete_verify_email(g._db, code, EmailUsageType.SELLER_VERIFY)
         if confirm:
             Account.set_email_checked(g._db, verify_email['ro_id'], 1)
-            return make_response(200)
+            return MainException.OK
         else:
             error = '确认邮件失败'
             logging.debug("error:%s %s %s %s", error, account_obj, verify_email, session['user'])
@@ -160,7 +162,7 @@ def reset_mail():
     """
     """
     email = request.form.get('email', '')
-
+    email_cb = request.form.get('email_cb')
     if not email:
         raise MainException.ACCOUNT_NOT_FOUND
 
@@ -174,7 +176,7 @@ def reset_mail():
 
     code = random_ascii_string(40)
 
-    send_reset_email(email, code, url_for('account.password_forget_check', mail=email, code='', _external=True))
+    send_reset_email(email, code, email_cb)
 
     Account.insert_verify_email(g._db, email, code,
                                 EmailUsageType.SELLER_RESET_PWD,
@@ -256,11 +258,11 @@ def make_response(status_code, data=None):
 
 
 def send_verify_email(email, code, email_cb):
-    if email_cb is None:
+    if not email_cb:
         return
     mail = current_app.extensions.get('mail')
     if email_cb == 'debug':
-        url = url_for('.confirm_email', code=code, _external=True)
+        url = code
     else:
         url = email_cb + code
 
@@ -278,6 +280,8 @@ def send_verify_email(email, code, email_cb):
 
 
 def send_reset_email(email, code, email_cb):
+    if not email_cb:
+        return
     mail = current_app.extensions.get('mail')
     if email_cb == 'debug':
         url = url_for('.reset_password', code=code, _external=True)
