@@ -42,6 +42,7 @@ from models import WX
 from models import WXUser
 from models import App
 from models import Client
+from models import Supporter
 
 root = Blueprint('message', __name__, template_folder='templates', static_folder='static')
 
@@ -330,6 +331,37 @@ def amr_duration(body):
     duration = math.ceil(duration/1000.0)
     return duration
 
+def get_one_supporter(db, rds, store_id):
+    online_sellers = []
+    sellers = Seller.get_sellers(db, store_id)
+
+    if not sellers:
+        return None
+
+    for seller in sellers:
+        status = Supporter.get_user_status(rds, seller['id'])
+        seller['status'] = status
+        if status == Supporter.STATUS_ONLINE:
+            online_sellers.append(seller)
+
+    if len(online_sellers) == 0:
+        #假设第一个客服是管理员
+        seller = sellers[0]
+    else:
+        index = random.randint(0, len(online_sellers) - 1)
+        seller = sellers[index]
+
+    name = ""
+    if seller.has_key('name') and seller['name']:
+        name = seller['name'].split('@')[0]
+
+    resp = {
+        "seller_id":seller['id'], 
+        "name":name,
+        "status":seller["status"]
+    }
+    return resp
+
 
 @root.route('/wx/<wx_appid>/callback', methods=['POST'])
 def receive(wx_appid):
@@ -425,11 +457,17 @@ def receive(wx_appid):
             logging.debug("unsupport msg type:%s", msg_type)
             obj = None
 
-        if obj:
+        if u.seller_id == 0:
+            seller = get_one_supporter(db, rds, u.store_id)
+            if not seller:
+                logging.warning("no supporter:%d", u.store_id)
+            else:
+                WXUser.set_seller_id(rds, gh_id, openid, seller['seller_id'])
+                u.seller_id = seller['seller_id']
+
+        if obj and u.seller_id:
             c = json.dumps(obj)
-            logging.debug("message content:%s", c)
-            seller_id = send_customer_message(u.appid, u.uid, u.store_id, u.seller_id, c)
-            if seller_id != u.seller_id:
-                WXUser.set_seller_id(rds, gh_id, openid, seller_id)
+            logging.debug("send customer message store id:%s seller_id:%s content:%s", u.store_id, u.seller_id, c)
+            send_customer_message(u.appid, u.uid, u.store_id, u.seller_id, c)
 
     return ''
