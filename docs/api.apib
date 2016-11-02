@@ -1,0 +1,632 @@
+FORMAT: 1A
+HOST: {{host}}v1
+
+# 用户中心API
+
+## 接口规范
+
+### 接口地址
+
+- IP基础地址： {{host}}
+
+#  /user/login
+## 登录 [POST]
+
++ 请求参数
+
+| 字段            | 类型               | 定义                    |
+|----------------|--------------------|------------------------|
+| email          | string             | 邮箱地址                |
+| password       | string             | 密码                    |
+
++ 返回参数
+
+| 字段            | 类型               | 定义                    |
+|----------------|--------------------|------------------------|
+| email          | string             | 邮箱地址                |
+| email_checked  | int             | 邮箱是否验证 0否 1是        |
+| id             | int             | 用户ID                    |
+
+:::note
+    登录返回结果中，如果邮箱未验证需要调用 "验证邮箱" 接口后才能使用，
+    验证邮箱时，可以调用 "重新发送验证" 接口
+:::
+
++ Request (application/x-www-form-urlencoded; charset=utf-8)
+    + Body
+
+        email=dragon8299%40163.com&password=123456
+
++ Response 200 (application/json)
+    
+    + Body
+
+        {
+            "email": "dragon8299@163.com", 
+            "email_checked": 0, 
+            "id": 100107
+        }
+
+#  /user/send_verify_email
+## 注册 [POST]
+
++ 请求参数
+
+| 字段            | 类型               | 定义                    |
+|----------------|--------------------|------------------------|
+| email          | string             | 邮箱地址                |
+| password       | string             | 密码                    |
+| email_cb       | string             | 邮件回调URL地址          |
+
++ 返回参数
+
+| 字段            | 类型               | 定义                    |
+|----------------|--------------------|------------------------|
+| email          | string             | 邮箱地址                |
+| email_checked  | int             | 邮箱是否验证 0否 1是        |
+| id             | int             | 用户ID                    |
+
+:::note
+    请求参数中的email_cb为空时，不发送邮件，非空时，
+    在邮件发送内容URL为 email_cb + code （回调URL+验证码）
+:::
+
++ Request (application/x-www-form-urlencoded; charset=utf-8)
+    + Body
+
+        email=dragon8299%40163.com&password=123456&email_cb=http://127.0.0.1/email_cb/
+
++ Response 200 (application/json)
+    
+    + Body
+
+        {
+            "email": "dragon8299@163.com", 
+            "email_checked": 0, 
+            "id": 100107
+        }
+
+#  /user/resend_verify_email
+## 重新发送验证 [POST]
+
++ 请求参数
+
+| 字段            | 类型               | 定义                    |
+|----------------|--------------------|------------------------|
+| email          | string             | 邮箱地址                |
+| email_cb       | string             | 邮件回调URL地址          |
+
+:::note
+    请求参数中的email_cb为空时，不发送邮件，非空时，
+    在邮件发送内容URL为 email_cb + code （回调URL+验证码）
+:::
+
++ Request (application/x-www-form-urlencoded; charset=utf-8)
+    + Body
+
+        email=dragon8299%40163.com&email_cb=http://127.0.0.1/email_cb/
+
++ Response 200 (application/json)
+    
+    + Body
+
+
+# /user/verify
+## 验证邮箱 [POST]
+
++ 请求参数
+
+| 字段            | 类型               | 定义                    |
+|----------------|--------------------|------------------------|
+| code           | string             | 邮箱验证码               |
+
++ Request (application/x-www-form-urlencoded; charset=utf-8)
+    + Body
+
+        code=123123
+
+
++ Response 200 (application/json)
+    + Body
+    
+
+#  /user/send_reset_email
+## 忘记密码 [POST]
+
++ 请求参数
+
+| 字段            | 类型               | 定义                    |
+|----------------|--------------------|------------------------|
+| email          | string             | 邮箱地址                |
+| email_cb       | string             | 邮件回调URL地址          |
+
+:::note
+    请求参数中的email_cb为空时，不发送邮件，非空时，
+    在邮件发送内容URL为 email_cb + code （回调URL+验证码）
+:::
+
++ Request (application/x-www-form-urlencoded; charset=utf-8)
+    + Body
+
+        email=dragon8299%40163.com&email_cb=http://127.0.0.1/email_cb/
+
++ Response 200 (application/json)
+    
+    + Body
+
+# /user/reset_password
+## 重置密码 [POST]
+
++ 请求参数
+
+| 字段            | 类型               | 定义                    |
+|----------------|--------------------|------------------------|
+| code           | string             | 邮箱验证码               |
+| password       | string             | 密码                    |
+
++ Request (application/x-www-form-urlencoded; charset=utf-8)
+    + Body
+
+        code=123123&password=123456
+
+
++ Response 200 (application/json)
+    + Body
+
+
+# /user/change_password
+## 修改密码 [POST]
+
++ 认证
+
+session认证
+
++ 请求参数
+
+| 字段            | 类型               | 定义                    |
+|----------------|--------------------|------------------------|
+| old_value      | string             | 旧密码                  |
+| new_value      | string             | 新密码                  |
+
++ Request (application/x-www-form-urlencoded; charset=utf-8)
+    + Body
+
+        old_value=123123&new_value=123456
+
+
++ Response 200 (application/json)
+    + Body
+
+
+
+#  /apps
+## 应用列表 [GET]
+
++ 认证
+
+session认证
+
++ 返回结果
+
+| 字段            | 类型               | 定义                    |
+|----------------|--------------------|------------------------|
+| store_id       | int                | 商店ID                  |
+| id             | int                | 应用ID                  |
+| name           | string             | 应用名                  |
+
+
++ Response 200 (application/json)
+    
+    + Body
+
+        [
+            {
+                "store_id": 95, 
+                "id": 7, 
+                "name": "SDK\u6d4b\u8bd5"
+            }
+        ]
+
+
+#  /apps/{id}
+## 应用详情 [POST]
+
++ Parameters
+    + id: `1` (required, int) - 应用ID
+    
++ 认证
+
+session认证
+
++ 返回结果
+
+| 字段            | 类型               | 定义                    |
+|----------------|--------------------|------------------------|
+| access_token   | string             | 授权token               |
+| expires_in     | int                | 过期时间,目前不过期为0  |
+| refresh_token  | string             | 刷新token,暂未使用      |
+| token_type     | string             | token类型，固定为Bearer |
+| user           | object             | 用户对象               |
+
+    
++ Response 200 (application/json)
+    + Body
+
+        {
+            "store_id": 95,
+            "ios": {
+                "platform_identity": "io.gobelieve.im.demo", 
+                "production_key_secret": "5", 
+                "sandbox_key_secret": "3", 
+                "sandbox_key_utime": 7, 
+                "is_active": 1, 
+                "platform_type": 2, 
+                "production_key_utime": 8, 
+                "client_id": 9, 
+                "production_key": "4", 
+                "sandbox_key": "2"
+            },
+            "secret": "0WiCxAU1jh76SbgaaFC7qIaBPm2zkyM1",
+            "key": "sVDIlIiDUm7tWPYWhi6kfNbrqui3ez44",
+            "id": 7,
+            "name": "SDK测试",
+            "android": {
+                "hw_appid": 10417737,
+                "pkey": "",
+                "update_time": 1477462461,
+                "platform_identity": "io.gobelieve.im.demo",
+                "mi_appid": 2882303761517423000,
+                "xinge_access_id": 2100103204,
+                "is_active": 1,
+                "gcm_api_key": "AIzaSyDj7XHkwFoox6Ip04DcOnW_RG4IIQcPjvg",
+                "xinge_secret_key": "53c1be217035aa75c1ccb5770b5df9f9",
+                "platform_type": 1,
+                "hw_secret_key": "80ungj5bjx00g269oeqs9t2fnkyhe5wr",
+                "cer": "",
+                "client_id": 8,
+                "gcm_sender_id": 978415858367,
+                "mi_secret_key": "Ef5FbgNVYkYMZTcWKMcFMw=="
+            }
+        }
+
+#  /apps
+## 创建应用 [POST]
+
++ 请求参数
+
+| 字段            | 类型               | 定义                    |
+|----------------|--------------------|------------------------|
+| name           | string             | 名称                    |
+
+
++ 返回结果
+
+| 字段            | 类型               | 定义                    |
+|----------------|--------------------|------------------------|
+| id             | string             | 应用ID                  | 
+
++ Request (application/x-www-form-urlencoded; charset=utf-8)
+    + Body
+
+        name=123123
+
++ Response 200 (application/json)
+    + Body
+
+        {
+            "id": 1575
+        }
+
+#  /apps/{id}
+## 修改应用 [PUT]
+
++ Parameters
+    + id: `1` (required, int) - 应用ID
+    
++ 认证
+
+session认证
+
++ 返回结果
+
+| 字段             | 类型               | 定义                    |
+|-----------------|--------------------|------------------------|
+| xinge_access_id | string             | 信鸽授权ID               |
+| xinge_secret_key| string             | 信鸽密钥                 |
+| mi_appid        | string             | 小米应用ID               |
+| mi_secret_key   | string             | 小米密钥                |
+| hw_appid        | string             | 华为应用ID               |
+| hw_secret_key   | string             | 华为密钥                  |
+| gcm_sender_id   | string             | 谷歌推送发送者ID          |
+| gcm_api_key     | string             | 谷歌推送授权              |
+| sandbox_key     | file               | IOS推送沙箱证书文件，p12格式|
+| production_key  | file               | IOS推送生产环境证书，p12格式|
+| android_identity | string             | 安卓包名                 |
+| ios_identity     | string             | IOS包名                 |
+
++ Response 200 (application/json)
+    + Body
+
+        {
+            "store_id": 95,
+            "ios": {
+                "platform_identity": "io.gobelieve.im.demo", 
+                "production_key_secret": "5", 
+                "sandbox_key_secret": "3", 
+                "sandbox_key_utime": 7, 
+                "is_active": 1, 
+                "platform_type": 2, 
+                "production_key_utime": 8, 
+                "client_id": 9, 
+                "production_key": "4", 
+                "sandbox_key": "2"
+            },
+            "secret": "0WiCxAU1jh76SbgaaFC7qIaBPm2zkyM1",
+            "key": "sVDIlIiDUm7tWPYWhi6kfNbrqui3ez44",
+            "id": 7,
+            "name": "SDK测试",
+            "android": {
+                "hw_appid": 10417737,
+                "pkey": "",
+                "update_time": 1477462461,
+                "platform_identity": "io.gobelieve.im.demo",
+                "mi_appid": 2882303761517423000,
+                "xinge_access_id": 2100103204,
+                "is_active": 1,
+                "gcm_api_key": "AIzaSyDj7XHkwFoox6Ip04DcOnW_RG4IIQcPjvg",
+                "xinge_secret_key": "53c1be217035aa75c1ccb5770b5df9f9",
+                "platform_type": 1,
+                "hw_secret_key": "80ungj5bjx00g269oeqs9t2fnkyhe5wr",
+                "cer": "",
+                "client_id": 8,
+                "gcm_sender_id": 978415858367,
+                "mi_secret_key": "Ef5FbgNVYkYMZTcWKMcFMw=="
+            }
+        }
+
+
+#  /questions
+## 创建问题 [POST]
+
++ 认证
+
+session认证
+
++ 请求参数
+
+| 字段            | 类型               | 定义                    |
+|----------------|--------------------|------------------------|
+| question       | string             | 问题                    |
+| answer         | string             | 答案                    |
+
+
++ Request (application/x-www-form-urlencoded; charset=utf-8)
+    + Body
+
+        question=123123&answer=123
+
++ Response 200 (application/json)
+
+        {
+            "id": 1575
+        }
+
+
+#  /questions/{id}
+## 问题详情 [GET]
+
++ Parameters
+    + id: `1` (required, int) - 问题ID
++ 认证
+
+session认证 
+
++ 返回结果
+
+| 字段            | 类型               | 定义                    |
+|----------------|--------------------|------------------------|
+| id             | int                | 问题ID                  |
+| question       | string             | 问题                    |
+| answer         | string             | 答案                    |
+
+
++ Response 200 (application/json)
+    + Body
+
+        {
+            "answer": "answer", 
+            "question": "test", 
+            "id": 7
+        }
+
+#  /questions
+## 问题列表 [GET]
+
++ 认证
+
+session认证 
+
++ 返回结果
+
+| 字段            | 类型               | 定义                    |
+|----------------|--------------------|------------------------|
+| id             | int                | 问题ID                  |
+| question       | string             | 问题                    |
+| answer         | string             | 答案                    |
+
+
++ Response 200 (application/json)
+    + Body
+
+        {
+            "pagination": {
+                "rows_found": 3,
+                "limit": 10,
+                "offset": 0
+            },
+            "data": [{
+                "answer": "answer",
+                "question": "test",
+                "id": 7
+            }]
+        }
+
+#  /questions/{id}
+## 删除问题 [DELETE]
+
++ Parameters
+    + id: `1` (required, int) - 问题ID
+    
++ 认证
+
+session认证
+
++ Response 200 (application/json)
+
+#  /sellers
+## 创建客服 [POST]
+
++ 认证
+
+session认证
+
+
++ 请求参数
+
+| 字段            | 类型               | 定义                    |
+|----------------|--------------------|------------------------|
+| name           | string             | 姓名                    |
+| password       | string             | 密码                    |
+
+
++ Request (application/x-www-form-urlencoded; charset=utf-8)
+    + Body
+
+        name=123123&password=123
+
++ Response 200 (application/json)
+
+        {
+            "id": 1575
+        }
+
+
+#  /sellers/{id}
+## 客服详情 [GET]
++ Parameters
+    + id: `1` (required, int) - 客服ID
++ 认证
+
+session认证
+
++ 返回结果
+
+| 字段            | 类型               | 定义                    |
+|----------------|--------------------|------------------------|
+| id             | int                | 问题ID                  |
+| name           | string             | 姓名                    |
+| number         | string             | 邮箱                    |
+
+
++ Response 200 (application/json)
+    + Body
+
+        {
+            "answer": "answer", 
+            "question": "test", 
+            "id": 7
+        }
+
+#  /questions
+## 客服列表 [GET]
+
++ 认证
+
+session认证
+
++ 返回结果
+
+| 字段            | 类型               | 定义                    |
+|----------------|--------------------|------------------------|
+| id             | int                | 问题ID                  |
+| question       | string             | 问题                    |
+| answer         | string             | 答案                    |
+
+
++ Response 200 (application/json)
+    + Body
+
+        [{
+            "number": "houxuehua49@gmail.com",
+            "id": 100083,
+            "name": "houxuehua49@gmail.com"
+        }, {
+            "number": null,
+            "id": 100098,
+            "name": "test"
+        }]
+
+#  /wx
+## 微信列表 [GET]
+
++ 认证
+
+session认证
+
++ 返回结果
+
+| 字段            | 类型               | 定义                    |
+|----------------|--------------------|------------------------|
+| id             | int                | 问题ID                  |
+| question       | string             | 问题                    |
+| answer         | string             | 答案                    |
+
+
++ Response 200 (application/json)
+    + Body
+
+        [{
+            "store_id": 95,
+            "gh_id": "11",
+            "is_authorized": 1,
+            "wx_app_id": "222",
+            "id": 1500,
+            "name": "SmartStyle"
+        }]
+
+#  /wx/{id}
+## 微信详情 [GET]
++ Parameters
+    + id: `1` (required, int) - 应用ID
+    
++ 认证
+
+session认证
+
++ 返回结果
+
+| 字段            | 类型               | 定义                    |
+|----------------|--------------------|------------------------|
+| id             | int                | 问题ID                  |
+| name           | string             | 姓名                    |
+| number         | string             | 邮箱                    |
+
+
++ Response 200 (application/json)
+    + Body
+
+        {
+            "id": 1500, 
+            "name": "SmartStyle"
+        }
+
+#  /wx/{id}
+## 删除问题 [DELETE]
++ Parameters
+    + id: `1` (required, int) - 应用ID
+    
++ 认证
+
+session认证
+
++ Response 200 (application/json)
