@@ -48,6 +48,8 @@ class WXUser(object):
         self.wx_appid = ""
         self.store_id = 0
         self.seller_id = 0
+        self.seller_timestamp = 0
+        self.timestamp = 0
 
     @classmethod
     def gen_id(cls, rds):
@@ -59,7 +61,7 @@ class WXUser(object):
         key = "wx_users_%s_%s"%(gh_id, openid)
         logging.debug("wx user key:%s", key)
 
-        appid, uid, wx_appid, store_id, seller_id, timestamp = rds.hmget(key, "appid", "uid", "wx_appid", "store_id", "seller_id", 'timestamp')
+        appid, uid, wx_appid, store_id, seller_id, seller_timestamp, timestamp = rds.hmget(key, "appid", "uid", "wx_appid", "store_id", "seller_id", 'seller_timestamp', 'timestamp')
 
         if not appid or not uid or not store_id:
             return None
@@ -71,6 +73,7 @@ class WXUser(object):
         u.wx_appid = wx_appid
         u.store_id = int(store_id)
         u.seller_id = int(seller_id) if seller_id else 0
+        u.seller_timestamp = int(seller_timestamp) if seller_timestamp else 0
         u.timestamp = int(timestamp) if timestamp else 0
         return u
 
@@ -84,6 +87,7 @@ class WXUser(object):
             "wx_appid":u.wx_appid,
             "store_id":u.store_id,
             "seller_id":u.seller_id,
+            'seller_timestamp':u.seller_timestamp,
             'timestamp':u.timestamp
         }
         logging.debug("save wx user:%s, %s", key, obj)
@@ -98,7 +102,12 @@ class WXUser(object):
     def set_timestamp(cls, rds, gh_id, openid, timestamp):
         key = "wx_users_%s_%s"%(gh_id, openid)
         rds.hset(key, "timestamp", timestamp)
-        
+
+    @classmethod
+    def set_seller_timestamp(cls, rds, gh_id, openid, timestamp):
+        key = "wx_users_%s_%s"%(gh_id, openid)
+        rds.hset(key, "seller_timestamp", timestamp)
+
     @classmethod
     def bind_openid(cls, rds, appid, uid, openid):
         now = int(time.time())

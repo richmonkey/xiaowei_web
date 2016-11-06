@@ -17,6 +17,10 @@ from utils.reply import Reply
 from utils.WXBizMsgCrypt import WXBizMsgCrypt
 from utils.func import random_ascii_string
 from utils.fs import FS
+from utils.func import get_image_size
+from utils.func import amr_duration
+from utils.func import UnknownImageFormat
+
 import config
 
 if config.DEBUG:
@@ -307,29 +311,6 @@ def wx_message():
 
     return 'success'
 
-def amr_duration(body):
-    packed_size = [12, 13, 15, 17, 19, 20, 26, 31, 5, 0, 0, 0, 0, 0, 0, 0]
-    duration = -1
-    length = len(body)
-    pos = 6
-    frame_count = 0
-    packed_pos = -1
-     
-    if length == 0:
-        return 0
-
-    while pos <= length:
-        if pos == length:
-            duration = (length-6)/650
-            break
-        t, = struct.unpack("!B", body[pos])
-        packed_pos = (t >> 3) & 0x0F
-        pos += packed_size[packed_pos] + 1
-        frame_count += 1
-     
-    duration += frame_count*20
-    duration = math.ceil(duration/1000.0)
-    return duration
 
 def get_one_supporter(db, rds, store_id):
     online_sellers = []
@@ -406,7 +387,7 @@ def receive(wx_appid):
         logging.debug("msg:%s %s %s", openid, gh_id, msg_type)
 
         u = get_user(rds, db, gh_id, openid)
-        logging.debug("store id:%s seller id:%s", u.store_id, u.seller_id)
+        logging.debug("appid:%s uid:%s store id:%s seller id:%s", u.appid, u.uid, u.store_id, u.seller_id)
         if msg_type == 'text':
             content = data.get('Content')
             logging.debug("text content:%s", content)
@@ -423,7 +404,12 @@ def receive(wx_appid):
 
             mp = WXMPAPI(access_token)
             media = mp.get_media(data.get("MediaId"))
-
+            try:
+                width, height = get_image_size(media)
+            except UnknownImageFormat, e:
+                width = 0
+                height = 0
+   
             ext = ".jpg"
             name = md5.new(media).hexdigest()
             path = "/images/" + name + ext
@@ -433,7 +419,9 @@ def receive(wx_appid):
                 return ''
 
             url = config.IM_URL + "/images/" + name + ext
-            obj = {"image":url}
+            image2 = {"url":url, "width":width, "height":height}
+            obj = {"image":url, "image2":image2}
+            logging.debug("image url:%s width:%s height:%s", url, width, height)
         elif msg_type == 'voice':
             access_token = get_access_token(rds, db, u.wx_appid)
             if not access_token:
@@ -457,17 +445,47 @@ def receive(wx_appid):
             logging.debug("unsupport msg type:%s", msg_type)
             obj = None
 
+        now = int(time.time())
         if u.seller_id == 0:
             seller = get_one_supporter(db, rds, u.store_id)
             if not seller:
                 logging.warning("no supporter:%d", u.store_id)
             else:
                 WXUser.set_seller_id(rds, gh_id, openid, seller['seller_id'])
+                WXUser.set_seller_timestamp(rds, gh_id, openid, now)
                 u.seller_id = seller['seller_id']
+        elif now - u.seller_timestamp > 3600:
+            sellers = Seller.get_sellers(db, u.store_id)
+            if not sellers:
+                raise ResponseMeta(400, 'store no supporter')
+
+            deleted = True
+            for s in sellers:
+                if s['id'] == u.seller_id:
+                    deleted = False
+                    break
+                            
+            if not deleted:
+                WXUser.set_seller_timestamp(rds, gh_id, openid, now)
+            else:
+                #客服已经被删除
+                seller = get_one_supporter(db, rds, u.store_id)
+                if not seller:
+                    logging.warning("no supporter:%d", u.store_id)
+                    u.seller_id = 0
+                else:
+                    WXUser.set_seller_id(rds, gh_id, openid, seller['seller_id'])
+                    WXUser.set_seller_timestamp(rds, gh_id, openid, now)
+                    u.seller_id = seller['seller_id']
+
 
         if obj and u.seller_id:
             c = json.dumps(obj)
             logging.debug("send customer message store id:%s seller_id:%s content:%s", u.store_id, u.seller_id, c)
             send_customer_message(u.appid, u.uid, u.store_id, u.seller_id, c)
+        
+        if u.seller_id == 0:
+            #todo raise exception
+            pass
 
     return ''

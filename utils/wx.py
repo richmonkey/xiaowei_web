@@ -43,6 +43,7 @@ class WXOpenAPI(object):
             result = r.json()
             return result
         except Exception as e:
+            print e
             return None
 
     #获取预授权码pre_auth_code
