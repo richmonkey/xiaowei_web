@@ -20,6 +20,7 @@ from utils.fs import FS
 from utils.func import get_image_size
 from utils.func import amr_duration
 from utils.func import UnknownImageFormat
+import random
 
 import config
 
