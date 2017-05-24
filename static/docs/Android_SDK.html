@@ -20,7 +20,7 @@
 <body>
 <div class="header">
     <div class="inner-wrapper">
-        <div class="logo"><a href="/">GoBelieve文档中心</a></div>
+        <div class="logo"><a href="/">小微客服</a></div>
     </div>
 </div>
 
@@ -33,11 +33,11 @@
                 <!--<h1 class="nav-title">推送文档</h1>-->
                 <ul>
 
-            <li  ><a href="./Android_SDK.html">Android开发文档</a><i class="disclosure"></i></li>
+            <li  class="active"  ><a href="./Android_SDK.html">Android开发文档</a><i class="disclosure"></i></li>
 
             <li  ><a href="./IOS_SDK.html">IOS开发文档</a><i class="disclosure"></i></li>
 
-            <li  class="active"  ><a href="./Server.html">服务器RestAPI文档</a><i class="disclosure"></i></li>
+            <li  ><a href="./Web.html">网站接入文档</a><i class="disclosure"></i></li>
 
 </ul>
 
@@ -48,97 +48,72 @@
 <div class="main">
     <div class="wrapper">
         <div class="nav-page-content typo typo-selection" role="main">
-            <h1 id="restapi">RestAPI</h1>
-<h2 id="-">接口地址</h2>
+            <h1 id="android-sdk-">Android SDK 接入</h1>
+<p>初始化sdk后， 应用只有在打开客服聊天界面的情况下，才会建立一个socket的长链接来收发消息<br>
+退出聊天界面后， 用apns来推送新消息的提醒，从而保证资源消耗的最优化</p>
+<h2 id="sdk-">sdk地址</h2>
+<p><a href="https://github.com/GoBelieveIO/im_android">https://github.com/GoBelieveIO/im_android</a></p>
+<h2 id="-">应用没有用户系统</h2>
 <ul>
-<li>正式:<a href="http://api.gobelieve.io">http://api.gobelieve.io</a> 沙盒:<a href="http://sandbox.api.gobelieve.io">http://sandbox.api.gobelieve.io</a></li>
+<li>app启动时</li>
 </ul>
-<h2 id="-token">获取用户token</h2>
-<ul>
-<li>第三方应用的客户端通过应用服务器作为桥梁获取连接im服务器使用到的token</li>
-<li>从im api服务器返回的用户token是永久有效的，第三方应用可以将token保存在自己的服务器</li>
-</ul>
-<h2 id="-">接口规范</h2>
-<h3 id="-4-http-">接口支持4种HTTP方法</h3>
-<ul>
-<li><strong>GET</strong> 获取对象</li>
-<li><strong>PUT</strong> 替换和更新对象</li>
-<li><strong>POST</strong> 创建新的对象</li>
-<li><strong>DELETE</strong> 删除对象</li>
-</ul>
-<h3 id="http-">HTTP返回码</h3>
-<ul>
-<li>200 成功</li>
-<li>其他 失败</li>
-</ul>
-<h3 id="http-">HTTP 接口返回值结构</h3>
-<pre><code>{
-    &quot;meta&quot;: 
-    {
-        &quot;code&quot;: &quot;业务码&quot;,
-        &quot;message&quot;: &quot;状态信息&quot;
-    },
-    &quot;data&quot;: ...
-}
-</code></pre><p><em>若无特殊说明以下接口响应结果指的是此结构的data字段的值。</em></p>
-<h3 id="-">第三方服务端授权</h3>
-<ul>
-<li>请求地址: 所有可供第三方服务端访问的接口</li>
-<li>请求头部: Authorization: Basic $base64(appid:$hex_md5(appsecret))</li>
-</ul>
-<h3 id="-">客户端授权</h3>
-<p>-请求头部: Authorization: Bearer $accesstoken</p>
-<h3 id="-access-token">第三方应用获取永久有效的access token</h3>
-<ul>
-<li>请求地址：<strong> POST /auth/grant</strong></li>
-<li>是否认证：服务端授权</li>
-<li><p>请求内容:</p>
-<pre><code>  {
-      &quot;uid&quot;:&quot;用户id（整型）&quot;
-      &quot;user_name&quot;:&quot;用户名&quot;
-  }
-</code></pre></li>
-<li><p>成功响应：200</p>
-<pre><code>  {
-      &quot;token&quot;:&quot;访问token&quot;
-  }
-</code></pre></li>
-<li><p>操作失败：
-400 非法参数</p>
-</li>
-</ul>
-<h3 id="-id-token">绑定用户id和推送token</h3>
-<ul>
-<li>请求地址：<strong>POST /device/bind </strong></li>
-<li>是否认证：客户端授权</li>
-<li>接口说明: 只支持IOS端</li>
-<li><p>请求内容：</p>
-<pre><code>  {
-      &quot;apns_device_token&quot;: &quot;IOS设备token，16进制字符串&quot;,
-  }
-</code></pre></li>
-<li><p>成功响应 200</p>
-</li>
-<li><p>操作失败:
-状态码:400</p>
-</li>
-</ul>
-<h3 id="-id-token-">解除用户id和推送token之间的绑定</h3>
-<ul>
-<li>请求地址：<strong>POST /device/unbind </strong></li>
-<li>是否认证：客户端授权</li>
-<li><p>请求内容：</p>
-<pre><code>  {
-      &quot;apns_device_token&quot;: &quot;IOS设备token，16进制字符串&quot;,
-  }
-</code></pre></li>
-<li><p>成功响应 200</p>
-</li>
-<li><p>操作失败:
-状态码:400</p>
-</li>
-</ul>
+<pre><code>    CustomerManager.getInstance().init(getApplicationContext(), appID, appKey, androidID)
 
+    if (CustomerManager.getInstance().getClientID() == 0) {
+        CustomerManager.getInstance().registerClient(name, callback{
+             //注册成功之后，登录当前用户
+             CustomerManager.getInstance.login()
+        })
+    } else {
+        CustomerManager.getInstance.login()
+    }
+</code></pre><ul>
+<li><p>将推送的devicetoken绑定到当前用户</p>
+<pre><code>  CustomerManager.getInstance.bindDeviceToken(deviceToken, callback)
+</code></pre></li>
+<li><p>打开聊天界面</p>
+<pre><code>CustomerManager.getInstance().startCustomerActivity(context, title);
+</code></pre></li>
+</ul>
+<h2 id="-">应用有用户系统</h2>
+<ul>
+<li><p>app启动时</p>
+<pre><code>CustomerManager.getInstance().init(getApplicationContext(), appID, appKey, androidID)
+</code></pre></li>
+<li><p>用户登录后，使用用户的id和用户名称来注册顾客id</p>
+</li>
+</ul>
+<pre><code class="lang-java">    if (CustomerManager.getInstance().getUid() != 当前uid) {
+        CustomerManager.getInstance().registerClient(uid, name, avatar, callback {
+             //注册成功之后，登录当前用户
+             CustomerManager.getInstance.login()
+        })
+    } else {
+        CustomerManager.getInstance().login();
+    }
+</code></pre>
+<ul>
+<li>将推送的devicetoken绑定到当前用户</li>
+</ul>
+<pre><code class="lang-java">    CustomerManager.getInstance.bindDeviceToken(deviceToken, callback)
+</code></pre>
+<ul>
+<li>打开聊天界面</li>
+</ul>
+<pre><code>     CustomerManager.getInstance().startCustomerActivity(context, title);
+</code></pre><ul>
+<li>用户注销</li>
+</ul>
+<pre><code class="lang-java">    CustomerManager.getInstance().unbindDeviceToken(callback {
+       CustomerManager.getInstance().unregisterClient();
+    });
+</code></pre>
+<h2 id="-">如何处理未读消息的提醒</h2>
+<p>app启动的时候调用getunreadmessage获取未读标志<br>
+之后通过推送通道的透传消息来接受未读消息的通知<br>
+透传消息的内容json对象，格式如下：</p>
+<pre><code>{&quot;xiaowei&quot;:{&quot;new&quot;:1}}
+</code></pre>
         </div>
     </div>
 </div>
