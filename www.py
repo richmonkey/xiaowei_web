@@ -94,6 +94,7 @@ def init_app(app):
     from website.api import api
     from website.web import web
     from website.wx import wx
+    from website.application import app as application    
     from website.message import root as message
     from website.account import account
     from website.question import question
@@ -101,6 +102,7 @@ def init_app(app):
     app.register_blueprint(web)
     app.register_blueprint(api)
     app.register_blueprint(wx)
+    app.register_blueprint(application)    
     app.register_blueprint(question)
     app.register_blueprint(message)
     app.register_blueprint(account)

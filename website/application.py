@@ -60,7 +60,15 @@ def app_index():
     store_id = session['user']['store_id']
 
     db = g._imdb
-    apps = App.get_apps(db, store_id)
+    allApps = App.get_apps(db, store_id)
+    wxs = App.get_wxs(db, store_id)
+    
+    #移除wx公众号
+    apps = []
+    for app in allApps:
+        r = [wx for wx in wxs if wx['id'] == app['id']]
+        if not r:
+            apps.append(app)
 
     return render_template('app/index.html', data={'list':apps})
 
