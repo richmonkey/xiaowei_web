@@ -5714,14 +5714,16 @@ body {
     .xw-home .use h2 span {
       line-height: 1.5;
       border-bottom: 2px solid #00a2d4; }
-  .xw-home .use .step .s {
-    color: #aaa; }
-  .xw-home .use .step h3 {
-    margin-top: 8px; }
-  .xw-home .use .step img {
-    width: 128px;
-    height: 128px;
-    margin: 30px 0; }
+  .xw-home .use .step {
+    text-align: center; }
+    .xw-home .use .step .s {
+      color: #aaa; }
+    .xw-home .use .step h3 {
+      margin-top: 8px; }
+    .xw-home .use .step img {
+      width: 128px;
+      height: 128px;
+      margin: 30px 0; }
 .xw-home .footer {
   margin-top: 50px;
   min-height: 68px;

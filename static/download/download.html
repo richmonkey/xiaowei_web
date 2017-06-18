@@ -2,55 +2,125 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>狗不理客服下载</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>小微客服</title>
     <style>
-        .wrap {
+        @charset "UTF-8";
+        /* line 1, style.scss */
+        * {
+            padding: 0;
+            margin: 0;
+            -webkit-font-smoothing: antialiased;
+            font-family: "Lantinghei SC", "Open Sans", Arial, "Hiragino Sans GB", "Microsoft YaHei", "微软雅黑", "STHeiti", "WenQuanYi Micro Hei", SimSun, sans-serif;
+        }
+
+        /* line 8, style.scss */
+        .container {
+        {#            width: 800px;#} min-height: 900px;
+            margin: 0 auto;
             text-align: center;
-            padding: 150px 0
         }
 
-        .download-wrap img {
-            width: 240px;
+        /* line 13, style.scss */
+        .container h1 {
+            font-size: 32px;
+            font-weight: 700;
+            line-height: 1.2;
+            color: #0070A2;
+            padding: 50px 0 20px;
+            text-shadow: 0 2px 1px rgba(0, 0, 0, 0.2);
         }
 
-        .hide {
-            display: none;
+        /* line 21, style.scss */
+        .container .desc {
+            font-size: 18px;
+            color: #555;
+            padding:0 30px 30px;
         }
 
+        /* line 26, style.scss */
+        .container .btn {
+            display: inline-block;
+            color: white;
+            text-align: center;
+            background-color: #55595e;
+            padding: 0.6rem 0.8rem;
+            margin-top: 1rem;
+            cursor: pointer;
+            -webkit-border-radius: 6px;
+            text-decoration: none;
+            -moz-border-radius: 6px;
+            border-radius: 6px;
+            -webkit-transition: background-color 0.25s ease;
+            -moz-transition: background-color 0.25s ease;
+            -ms-transition: background-color 0.25s ease;
+            -o-transition: background-color 0.25s ease;
+            transition: background-color 0.25s ease;
+        }
 
+        /* line 43, style.scss */
+        .container .btn.btn-download {
+            height: 54px;
+            width: 265px;
+            font-weight: 600;
+            line-height: 54px;
+            padding-top: 0;
+            padding-bottom: 0;
+            margin-top: 0;
+        }
+
+        /* line 52, style.scss */
+        .container .btn.green {
+            background-color: #55b848;
+        }
+
+        /* line 54, style.scss */
+        .container .btn.green:hover {
+            background-color: #4ca640;
+        }
+
+        /* line 59, style.scss */
+        .container .download-wrap {
+            padding-top: 20px;
+            text-align: center;
+        }
+
+        /* line 62, style.scss */
+        .container .download-wrap .btn {
+            margin: 0 10px;
+        }
+
+        .panel {
+            background-color: #eee;
+            margin-top: 80px;
+            padding-bottom: 50px;
+
+        }
     </style>
 </head>
 <body>
-<div class="wrap qrcode hide" id="qrcode">
-    <h1>下载狗不理客服</h1>
-    <p>扫描以下二维码下载</p>
-    <img src="./images/qrcode.png" alt="">
-</div>
-<div class="wrap download-wrap hide" id="ios">
-    <a href="itms-services://?action=download-manifest&url=https://api.gobelieve.io/kefu.plist">点击安装狗不理客服</a>
-</div>
-<div class="wrap download-wrap hide" id="android">
-    <a href="http://api.gobelieve.io/kefu.apk">点击安装狗不理客服</a>
-</div>
-<div class="wx-tip hide" id="wx-tip">
-    <h2>点击右上角『从浏览器中打开』!</h2>
-</div>
-<script>
-    if (/MicroMessenger/i.test(navigator.userAgent)) {
-        //微信
-        document.getElementById('wx-tip').style.display = 'block';
-    } else if (/ipad|iphone/i.test(navigator.userAgent.toLowerCase())) {
-        // android or ios 暂时支持iOS //(/android/i.test(navigator.userAgent.toLowerCase())) ||
-        document.getElementById('ios').style.display = 'block';
-    } else if (/android/i.test(navigator.userAgent.toLowerCase())) {
-        document.getElementById('android').style.display = 'block';
-    } else {
-        //PC
-        document.getElementById('qrcode').style.display = 'block';
-    }
+<div class="container">
+    <div class="panel">
+        <h1>小微客服</h1>
+        <div class="desc">
+            小微客服，只好一点点<br/>
+        </div>
+        <div class="download-wrap">
+            <a href="http://shouji.baidu.com/software/9513676.html"
+               target="_blank" class="btn btn-download green">免费下载(Android)</a>
+            <br>
+            <br>
+            
+            <a href="https://itunes.apple.com/cn/app/xiao-wei-ke-fu/id1124035038?mt=8" target="_blank"
+               class="btn btn-download green">免费下载(iOS)</a>
+            <br>
+            <br>
+            <a href="/static/小微客服.exe" target="_blank" class="btn btn-download green">免费下载(Windows)</a>
+            <br>
+            <br>            
+        </div>
+    </div>
+    
 
-
-</script>
+</div>
 </body>
 </html>
