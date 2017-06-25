@@ -5650,7 +5650,8 @@ body {
   .xw-home .header .logo {
     line-height: 68px;
     color: #fff;
-    font-size: 20px; }
+    font-size: 20px;
+    float: left; }
     .xw-home .header .logo img {
       width: 60px;
       vertical-align: middle; }

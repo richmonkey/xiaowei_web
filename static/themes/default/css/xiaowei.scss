@@ -20,6 +20,7 @@ body {
       line-height: $header-height;
       color:#fff;
       font-size:20px;
+      float: left;
       img {
         width: 60px;
         vertical-align: middle;
@@ -105,7 +106,7 @@ body {
     }
     .step{
       text-align: center;
-        
+
       .s{
         color:#aaa;
       }
