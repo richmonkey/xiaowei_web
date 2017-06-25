@@ -5,14 +5,14 @@
         <div class="header" id="header">
             <div class="container">
                 <div class="row">
-                    <div class="col-md-2"><a href="/" class="logo"><img
+                    <div class="col-md-2 logo"><a href="/" class="logo"><img
                             src="{{ url_for('web.static', filename='themes/default/images/logo.png',_external=True) }}"
                             alt="小微客服"/>&nbsp;&nbsp;小微客服</a></div>
                     <div class="col-md-8">
                         <div class="menu">
                             {#                            <a href="#header">首页</a>#}
                             <a href="/static/docs/Android_SDK.html">接入文档</a>
-                            <a href="/static/download/download.html">下载</a>     
+                            <a href="/static/download/download.html">下载</a>
                             <a href="{{ url_for('wx.wx_index',_external=true) }}">登录</a>
                             <a href="{{ url_for('account.user_register',_external=true) }}">注册</a>
                         </div>
