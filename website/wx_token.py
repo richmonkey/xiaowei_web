@@ -136,7 +136,6 @@ def get_user(rds, db, gh_id, openid):
             return None
 
         mp = WXMPAPI(access_token)
-
         
         uid = WXUser.gen_id(rds)
         u = WXUser()
@@ -150,7 +149,8 @@ def get_user(rds, db, gh_id, openid):
         u.seller_id = 0
         WXUser.save_wx_user(rds, u)
         WXUser.bind_openid(rds, u.appid, u.uid, openid)
-
+        logging.debug("bind openid:%s %s %s", u.appid, u.uid, openid)
+        
         r = mp.get_user_by_openid(openid)
         if r.get('errcode'):
             logging.error("get user error:%s %s", 

@@ -481,6 +481,7 @@ def receive(wx_appid):
             if not seller:
                 logging.warning("no supporter:%d", u.store_id)
             else:
+                logging.debug("got seller id:%s", seller['seller_id'])
                 WXUser.set_seller_id(rds, gh_id, openid, seller['seller_id'])
                 WXUser.set_seller_timestamp(rds, gh_id, openid, now)
                 u.seller_id = seller['seller_id']
