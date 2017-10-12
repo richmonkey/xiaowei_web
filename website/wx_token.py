@@ -167,6 +167,12 @@ def get_user(rds, db, gh_id, openid):
             logging.error("invalid gh_id:%s", gh_id)
             return None
 
+        store_id = wx['store_id']
+        if store_id and u.store_id != store_id:
+            WXUser.set_store_id(rds, gh_id, openid, store_id)
+            WXUser.set_seller_id(rds, gh_id, openid, 0)
+            logging.debug("store changed, gh_id:%s openid:%s store id:%s -> %s", gh_id, openid, u.store_id, store_id)
+            
         access_token = get_access_token(rds, db, wx['wx_app_id'])
         if not access_token:
             logging.error("can't get access token")
