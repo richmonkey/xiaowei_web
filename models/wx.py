@@ -94,6 +94,11 @@ class WXUser(object):
         rds.hmset(key, obj)
 
     @classmethod
+    def set_store_id(cls, rds, gh_id, openid, store_id):
+        key = "wx_users_%s_%s"%(gh_id, openid)
+        rds.hset(key, "store_id", store_id)
+        
+    @classmethod
     def set_seller_id(cls, rds, gh_id, openid, seller_id):
         key = "wx_users_%s_%s"%(gh_id, openid)
         rds.hset(key, "seller_id", seller_id)

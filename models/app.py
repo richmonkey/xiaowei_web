@@ -38,7 +38,7 @@ class App(object):
                    (appid, developer_id))
      
     @classmethod
-    def create_wx(cls, db, name, gh_id, wx_appid, refresh_token, store_id):
+    def create_wx(cls, db, name, gh_id, wx_appid, refresh_token, store_id, is_app):
         db.begin()
         appid = App.gen_id(db)
         app_key = random_ascii_string(32)
@@ -53,7 +53,7 @@ class App(object):
                              Client.CLIENT_WX, "")
      
         Client.create_wx(db, client_id, gh_id, wx_appid, 
-                         refresh_token)
+                         refresh_token, is_app)
      
         db.commit()
         return appid
@@ -83,13 +83,13 @@ class App(object):
 
     @classmethod
     def get_wx(cls, db, wx_appid):
-        sql = "SELECT app.id as id, app.name as name, app.developer_id as developer_id, app.store_id as store_id, client_wx.client_id as client_id, client_wx.gh_id as gh_id, client_wx.wx_app_id as wx_app_id, client_wx.refresh_token as refresh_token, client_wx.is_authorized as is_authorized FROM app, client, client_wx WHERE client_wx.wx_app_id=%s AND client_wx.client_id=client.id AND client.app_id=app.id"
+        sql = "SELECT app.id as id, app.name as name, app.developer_id as developer_id, app.store_id as store_id, client_wx.client_id as client_id, client_wx.gh_id as gh_id, client_wx.wx_app_id as wx_app_id, client_wx.refresh_token as refresh_token, client_wx.is_authorized as is_authorized, client_wx.is_app as is_app FROM app, client, client_wx WHERE client_wx.wx_app_id=%s AND client_wx.client_id=client.id AND client.app_id=app.id"
         r = db.execute(sql, wx_appid)
         return r.fetchone()
 
     @classmethod
     def get_wx_by_ghid(cls, db, gh_id):
-        sql = "SELECT app.id as appid, app.name as name, app.developer_id as developer_id, app.store_id as store_id, client_wx.client_id as client_id, client_wx.gh_id as gh_id, client_wx.wx_app_id as wx_app_id, client_wx.refresh_token as refresh_token, client_wx.is_authorized as is_authorized FROM app, client, client_wx WHERE gh_id=%s and client_wx.client_id=client.id and client.app_id=app.id"
+        sql = "SELECT app.id as appid, app.name as name, app.developer_id as developer_id, app.store_id as store_id, client_wx.client_id as client_id, client_wx.gh_id as gh_id, client_wx.wx_app_id as wx_app_id, client_wx.refresh_token as refresh_token, client_wx.is_authorized as is_authorized, client_wx.is_app as is_app FROM app, client, client_wx WHERE gh_id=%s and client_wx.client_id=client.id and client.app_id=app.id"
         r = db.execute(sql, gh_id)
         obj = r.fetchone()
         return obj

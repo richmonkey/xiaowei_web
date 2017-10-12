@@ -33,7 +33,6 @@ def login_post():
     """
     account_obj = _get_account_by_email(g._db, request.form.get('email', ''))
     if account_obj:
-        print account_obj
         account_password = account_obj.get('password')
         password = request.form.get('password', '')
         if check_password_hash(account_password, password):
@@ -46,7 +45,7 @@ def login_post():
     if 'user' not in session:
         session['user'] = {}
     
-    LOGGER.debug("account:%s", account)
+    LOGGER.info("account:%s", account)
     if account:
         session['user']['name'] = account.get('name')
         session['user']['id'] = account.get('id')

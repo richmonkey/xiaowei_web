@@ -52,9 +52,9 @@ class Client(object):
         return r.rowcount
                        
     @classmethod
-    def create_wx(cls, db, client_id, gh_id, wx_appid, refresh_token):
-        sql = "INSERT INTO client_wx(client_id, gh_id, wx_app_id, refresh_token, is_authorized) VALUES(%s, %s, %s, %s, %s)"
-        r = db.execute(sql, (client_id, gh_id, wx_appid, refresh_token, 1))
+    def create_wx(cls, db, client_id, gh_id, wx_appid, refresh_token, is_app):
+        sql = "INSERT INTO client_wx(client_id, gh_id, wx_app_id, refresh_token, is_authorized, is_app) VALUES(%s, %s, %s, %s, %s, %s)"
+        r = db.execute(sql, (client_id, gh_id, wx_appid, refresh_token, 1, 1 if is_app else 0))
         return r.lastrowid
 
     @classmethod

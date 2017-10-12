@@ -70,15 +70,18 @@ def send_customer_message(customer_appid, customer_id, store_id,
     url = config.IM_RPC_URL + "/post_customer_message"
     obj = {"customer_appid":customer_appid, "customer_id":customer_id, 
            "store_id":store_id, "seller_id":seller_id, "content":content}
-     
-    res = requests.post(url, data=json.dumps(obj))
-    if res.status_code != 200:
-        logging.warning("login error:%s %s", res.status_code, res.text)
-        return 0
-    else:
-        logging.debug("send customer message success")
-        obj = json.loads(res.content)
-        return obj['data']['seller_id']
+
+    try:
+        res = requests.post(url, data=json.dumps(obj))
+        if res.status_code != 200:
+            logging.warning("login error:%s %s", res.status_code, res.text)
+            return False
+        else:
+            logging.debug("send customer message success")
+            return True
+    except Exception, e:
+        logging.error("send customer message exception:%s", e)
+        return False
 
 
 def check_signature(signature, timestamp, nonce):
@@ -152,9 +155,17 @@ def auth_callback(uid):
         for f in funcs:
             fid = f['funcscope_category']['id']
             fids.append(fid)
-        
+
+        is_app = False
         AUTHORIZATION_MESSAGE = 1
-        if AUTHORIZATION_MESSAGE not in fids:
+        AUTHORIZATION_CONTACT = 19
+        if AUTHORIZATION_MESSAGE in fids:
+            #公众号
+            is_app = False
+        elif AUTHORIZATION_CONTACT in fids:
+            #小程序
+            is_app = True
+        else:
             logging.warning("no message authorization")
             return "没有消息权限"
 
@@ -173,7 +184,7 @@ def auth_callback(uid):
             if app['store_id'] == 0:
                 App.set_store_id(db, app['id'], store_id)
         else:
-            App.create_wx(db, name, gh_id, wx_appid, refresh_token, store_id)
+            App.create_wx(db, name, gh_id, wx_appid, refresh_token, store_id, is_app)
         WX.set_access_token(rds, wx_appid, access_token, expires_in)
         return "授权成功"
     else:
@@ -231,9 +242,17 @@ def handle_authorized(data):
         for f in funcs:
             fid = f['funcscope_category']['id']
             fids.append(fid)
-        
+
+        is_app = False
         AUTHORIZATION_MESSAGE = 1
-        if AUTHORIZATION_MESSAGE not in fids:
+        AUTHORIZATION_CONTACT = 19
+        if AUTHORIZATION_MESSAGE in fids:
+            #公众号
+            is_app = False
+        elif AUTHORIZATION_CONTACT in fids:
+            #小程序
+            is_app = True
+        else:
             logging.warning("no message authorization")
             return "没有消息权限"
 
@@ -250,7 +269,7 @@ def handle_authorized(data):
             if app['store_id'] != 0 and app['store_id'] != store_id:
                 return "已被其它账号授权"
         else:
-            App.create_wx(db, name, gh_id, wx_appid, refresh_token, store_id)
+            App.create_wx(db, name, gh_id, wx_appid, refresh_token, store_id, is_app)
         WX.set_access_token(rds, wx_appid, access_token, expires_in)
         return "授权成功"
     else:
@@ -293,10 +312,20 @@ def wx_message():
         logging.warning("msg signature is None")
         return ''
 
-    wx_crypt = WXBizMsgCrypt(TOKEN, ENCODING_AES_KEY, APPID)
-    r, xml = wx_crypt.DecryptTicket(request.data, msg_signature, timestamp, nonce)
-    logging.debug("ret:%s xml:%s", r, xml)
-    data = Parse.parse(xml)
+    try:
+        data = Parse.parse(request.data)
+        encrypted_data = data.get("Encrypt")
+        wx_crypt = WXBizMsgCrypt(TOKEN, ENCODING_AES_KEY, APPID)
+        r, xml = wx_crypt.DecryptTicket(request.data, msg_signature, timestamp, nonce)
+        logging.debug("ret:%s xml:%s", r, xml)
+        if r == 0 and xml:
+            data = Parse.parse(xml)
+    except Exception, e:
+        logging.error("exception:%s", e)
+        wx_crypt = WXBizMsgCrypt(TOKEN, ENCODING_AES_KEY, APPID)
+        r, xml = wx_crypt.DecryptTicket(request.data, msg_signature, timestamp, nonce)
+        logging.debug("ret:%s xml:%s", r, xml)
+        data = Parse.parse(xml)
 
     info_type = data.get('InfoType')
     logging.debug("info type:%s", info_type)
@@ -490,3 +519,31 @@ def receive(wx_appid):
             pass
 
     return ''
+
+
+
+@root.route('/wx/contact')
+def validate_contact():
+    req = request.args
+    signature = req.get('signature', '')
+    timestamp = req.get('timestamp', '')
+    nonce = req.get('nonce', '')
+    echostr = req.get('echostr')
+    if check_signature(signature, timestamp, nonce):
+        return echostr
+    else:
+        return ''
+
+@root.route('/wx/contact', methods=['POST'])
+def wx_contact():
+    req = request.args
+    signature = req.get('signature', '')
+    timestamp = req.get('timestamp', '')
+    nonce = req.get('nonce', '')
+    if not check_signature(signature, timestamp, nonce):
+        logging.warning("check signature fail")
+        return ''
+
+    logging.debug("req args:%s", req)
+    logging.debug("data:%s", request.data)
+    return 'success'
