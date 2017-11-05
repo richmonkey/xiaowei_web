@@ -402,6 +402,16 @@ def receive(wx_appid):
     # 接收到事件
     if msg_type == 'event':
         logging.debug("event:%s", data.get('Event'))
+        event = data.get('Event')
+        session = data.get('SessionFrom')
+        openid = data.get('FromUserName')
+        gh_id = data.get('ToUserName')
+        if event == 'user_enter_tempsession' and session:
+            #设置来自小程序的微信用户名
+            u = get_user(rds, db, gh_id, openid)
+            if u:
+                logging.debug("set user name:%s %s %s", gh_id, openid, session)
+                WXUser.set_user_name(rds, u.appid, u.uid, session)
         return ''
     # 接收到其他消息
     else:
