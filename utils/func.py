@@ -103,7 +103,7 @@ def xor_crypt_string(data, key, encode=False, decode=False):
 
 def init_logger(name):
     log_dir = getattr(init_logger, 'log_dir', None)
-    log_formatter = logging.Formatter('%(levelname)s %(asctime)s %(name)s %(funcName)s %(lineno)d: %(message)s')
+    log_formatter = logging.Formatter('%(levelname)s %(asctime)s %(name)s %(funcName)s %(filename)s:%(lineno)d: %(message)s')
 
     if not log_dir:
         if 'stdout' not in LOGGERS:
