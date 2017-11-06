@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
+    <title>
+        客服
+    </title>
+    <link rel="stylesheet" href="/static/css/customer.css" type="text/css"/>
+
+</head>
+
+<body>
+<div class="main pane pane-chat" id="main">
+    <div class="chat-list" id="chatHistory">
+        <div class="chat-wrap">
+            <ul>
+            </ul>
+        </div>
+    </div>
+
+    <div class="chat-form pane-chat-footer fixfixed" style="padding-left:0px;">
+        <textarea id="entry" class="chat-input"></textarea>
+        <button class="chat-button" id="chat_button">发送</button>
+    </div>
+</div>
+<p class="new-tip" id="new_tip">您有新消息...</p>
+
+<script>
+    var storeID = parseInt({{storeID}});
+    var host = "{{host}}";
+    var apiURL = "{{ apiURL }}";
+    var customerID = "{{customerID}}";
+    var customerAppID = "{{customerAppID}}";
+    var customerToken = "{{customerToken}}";
+</script>
+
+<script src="/static/js/customer/jquery-3.1.1.min.js" type="text/javascript"></script>
+<script src="/static/js/customer/console.js" type="text/javascript"></script>
+<script src="/static/js/customer/json2.js"></script>
+<script src="/static/js/customer/im.js"></script>
+<script src="/static/js/customer/util.js"></script>
+<script src="/static/js/customer/customer_chat.js?v=9"></script>
+
+</body>
+
+</html>

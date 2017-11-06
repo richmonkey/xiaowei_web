@@ -34,8 +34,8 @@ LOGGER = init_logger(__name__)
 init_logger(None)
 
 
-rds = redis.StrictRedis(host=config.REDIS_HOST, 
-                         port=config.REDIS_PORT, 
+rds = redis.StrictRedis(host=config.REDIS_HOST,
+                         port=config.REDIS_PORT,
                          db=config.REDIS_DB,
                          password=config.REDIS_PASSWORD)
 
@@ -94,19 +94,20 @@ def init_app(app):
     from website.api import api
     from website.web import web
     from website.wx import wx
-    from website.application import app as application    
+    from website.application import app as application
     from website.message import root as message
     from website.account import account
     from website.question import question
+    from website import customer
 
     app.register_blueprint(web)
     app.register_blueprint(api)
     app.register_blueprint(wx)
-    app.register_blueprint(application)    
+    app.register_blueprint(application)
     app.register_blueprint(question)
     app.register_blueprint(message)
     app.register_blueprint(account)
-
+    app.register_blueprint(customer.app)
 
 
 
