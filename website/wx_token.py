@@ -160,35 +160,58 @@ def get_user(rds, db, gh_id, openid):
             name = r.get('nickname', '')
             logging.debug("gh_id:%s openid:%s name:%s avatar:%s", gh_id, openid, name, avatar)
             WXUser.set_user_name(rds, u.appid, u.uid, name, avatar)
-    elif now - u.timestamp > 24*3600:
+    elif now - u.timestamp > 4*3600:
         #更新用户信息
         wx = App.get_wx_by_ghid(db, gh_id)
         if not wx:
             logging.error("invalid gh_id:%s", gh_id)
             return None
 
-        store_id = wx['store_id']
-        if store_id and u.store_id != store_id:
-            WXUser.set_store_id(rds, gh_id, openid, store_id)
-            WXUser.set_seller_id(rds, gh_id, openid, 0)
-            logging.debug("store changed, gh_id:%s openid:%s store id:%s -> %s", gh_id, openid, u.store_id, store_id)
-            
-        access_token = get_access_token(rds, db, wx['wx_app_id'])
-        if not access_token:
-            logging.error("can't get access token")
+        store_id = wx.get('store_id')
+        if not store_id:
+            logging.error("gh_id:%s is unauth", gh_id)
             return None
+        
+        appid = wx['appid']
+        #切换到其它账号或者删除之后重新授权
+        if u.store_id != store_id or u.appid != appid:
+            logging.debug("store/app changed, gh_id:%s openid:%s store id:%s -> %s appid:%s -> %s",
+                          gh_id, openid, u.store_id, store_id, u.appid, appid)
+            #生成新的用户id
+            uid = WXUser.gen_id(rds)
+            u = WXUser()
+            u.gh_id = gh_id
+            u.openid = openid
+            u.appid = wx['appid']
+            u.wx_appid = wx['wx_app_id']
+            u.uid = uid
+            u.store_id = store_id
+            u.timestamp = now
+            u.seller_id = 0
+            WXUser.save_wx_user(rds, u)
+            WXUser.bind_openid(rds, u.appid, u.uid, openid)
+            logging.debug("bind openid:%s %s %s", u.appid, u.uid, openid)
 
-        mp = WXMPAPI(access_token)
-        r = mp.get_user_by_openid(openid)
-        if r.get('errcode'):
-            logging.error("get user error:%s %s", 
-                          r['errcode'], r['errmsg'])
-        else:
-            avatar = r.get('headimgurl', '')
-            name = r.get('nickname', '')
-            logging.debug("gh_id:%s openid:%s name:%s avatar:%s", gh_id, openid, name, avatar)
-            WXUser.set_user_name(rds, u.appid, u.uid, name, avatar)
+        if wx['is_app']:
+            #小程序获取不到微信的用户信息
             WXUser.set_timestamp(rds, gh_id, openid, now)
+        else:
+            access_token = get_access_token(rds, db, wx['wx_app_id'])
+            if not access_token:
+                logging.error("can't get access token")
+                return None
+             
+            mp = WXMPAPI(access_token)
+            r = mp.get_user_by_openid(openid)
+            if r.get('errcode'):
+                logging.error("get user error:%s %s", 
+                              r['errcode'], r['errmsg'])
+            else:
+                avatar = r.get('headimgurl', '')
+                name = r.get('nickname', '')
+                logging.debug("gh_id:%s openid:%s name:%s avatar:%s", gh_id, openid, name, avatar)
+                WXUser.set_user_name(rds, u.appid, u.uid, name, avatar)
+                WXUser.set_timestamp(rds, gh_id, openid, now)
         
     return u
 
