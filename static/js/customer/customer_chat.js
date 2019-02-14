@@ -5,7 +5,6 @@ var appID = 0;
 var uid = 0;
 var token = "";
 
-var IMService = gobelieve.IMService;
 
 String.format = function () {
     if (arguments.length == 0)
